@@ -1,0 +1,1326 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>My Closet — What's in My Closet?</title>
+<meta name="theme-color" content="#F2EDE3">
+<meta name="description" content="Your real wardrobe, organised. Daily outfit ideas from your own clothes.">
+<link id="manifest" rel="manifest">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="My Closet">
+<link id="appleIcon" rel="apple-touch-icon">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..700;1,9..144,400..700&family=Karla:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+:root{
+  --bg:#F2EDE3; --paper:#FBF8F0; --paper2:#F5EFDF;
+  --ink:#1C1A15; --mut:#8B8271; --line:#DED5C0;
+  --acc:#C13B25; --acc2:#F2E2D8;
+  --good:#4C7A46; --warn:#A5731F;
+  --r:12px;
+}
+html,body{height:100%}
+body{font-family:Karla,sans-serif;background:var(--bg);color:var(--ink);font-size:15px;line-height:1.45}
+.serif{font-family:Fraunces,serif}
+button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
+input,select{font:inherit;color:inherit}
+img{display:block}
+::-webkit-scrollbar{width:0;height:0}
+
+/* ---------- هيكل عام ---------- */
+#app{max-width:480px;margin:0 auto;min-height:100dvh;background:var(--bg);position:relative}
+.screen{display:none;padding:20px 18px 118px;animation:up .35s ease both}
+.screen.on{display:block}
+@keyframes up{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+
+.hdr{display:flex;align-items:center;gap:12px;margin-bottom:18px}
+.hdr h1{font-family:Fraunces,serif;font-size:27px;font-weight:600;letter-spacing:-.02em;flex:1}
+.bk{width:38px;height:38px;border:1.5px solid var(--ink);border-radius:50%;display:flex;align-items:center;justify-content:center;flex:none}
+.lbl{font-size:10.5px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--mut);margin:22px 0 9px}
+.card{background:var(--paper);border:1px solid var(--line);border-radius:var(--r)}
+.divider{display:flex;align-items:center;gap:12px;margin:26px 0 14px;color:var(--mut)}
+.divider::before,.divider::after{content:"";flex:1;border-top:1px dashed var(--line)}
+.divider span{font-size:11px;font-weight:700;letter-spacing:.16em;text-transform:uppercase}
+.mut{color:var(--mut)} .accT{color:var(--acc)}
+
+/* ---------- أزرار وشرائح ---------- */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;border:1.5px solid var(--ink);background:var(--paper);color:var(--ink);border-radius:9px;padding:13px 18px;font-weight:700;font-size:14px;transition:transform .08s}
+.btn:active{transform:scale(.97)}
+.btn.primary{background:var(--ink);color:var(--paper)}
+.btn.accent{background:var(--acc);border-color:var(--acc);color:#FDF9F2}
+.btn.ghost{border-color:var(--line);color:var(--ink);background:transparent}
+.btn.danger{border-color:var(--acc);color:var(--acc)}
+.btn.block{width:100%}
+.chiprow{display:flex;flex-wrap:wrap;gap:8px}
+.chip{display:inline-flex;align-items:center;gap:6px;border:1.5px solid var(--line);background:var(--paper);border-radius:999px;padding:8px 14px;font-size:13px;font-weight:600;transition:transform .08s}
+.chip:active{transform:scale(.96)}
+.chip.on{background:var(--ink);border-color:var(--ink);color:var(--paper)}
+.chip.acc{border-color:var(--acc);color:var(--acc)}
+.chip svg{flex:none}
+.opt{display:flex;flex-direction:column;align-items:center;gap:9px;border:1.5px solid var(--line);background:var(--paper);border-radius:var(--r);padding:16px 8px;font-weight:700;font-size:13px}
+.opt:active{transform:scale(.97)}
+.opt.on{border-color:var(--ink);background:var(--paper2);box-shadow:inset 0 0 0 1px var(--ink)}
+.optgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:9px}
+.optgrid.g2{grid-template-columns:repeat(2,1fr)}
+.optgrid.g3{grid-template-columns:repeat(3,1fr)}
+
+/* ---------- Home ---------- */
+.brandmark{display:flex;align-items:center;gap:10px;margin-bottom:4px}
+.brandmark .bt{font-family:Fraunces,serif;font-style:italic;font-size:15px;color:var(--mut)}
+.big{font-family:Fraunces,serif;font-weight:600;font-size:44px;line-height:1;letter-spacing:-.02em;margin:6px 0 4px}
+.dateL{font-size:13px;color:var(--mut)}
+.counts{display:flex;margin-top:18px;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+.cnt{flex:1;text-align:center;padding:13px 4px;border-right:1px solid var(--line)}
+.cnt:last-child{border-right:none}
+.cnt b{display:block;font-family:Fraunces,serif;font-size:27px;font-weight:600}
+.cnt span{font-size:10px;font-weight:700;letter-spacing:.12em;color:var(--mut);text-transform:uppercase}
+.wrow{display:flex;align-items:center;gap:7px;flex-wrap:wrap;margin:16px 0 2px}
+.wrow .wl{font-size:12px;font-weight:700;color:var(--mut);margin-right:2px}
+.chip.wx{padding:6px 11px;font-size:12px}
+.chip.wx.on{background:var(--acc);border-color:var(--acc)}
+
+/* ---------- Look board ---------- */
+.look{display:flex;align-items:center;flex-wrap:wrap;justify-content:center;gap:5px;padding:16px 8px 10px}
+.look.sm{padding:10px 4px 6px;gap:4px}
+.lk{width:86px;text-align:center;cursor:pointer}
+.look.sm .lk{width:66px}
+.lk .v{background:var(--paper2);border:1px solid var(--line);border-radius:10px;aspect-ratio:5/6;display:flex;align-items:center;justify-content:center;overflow:hidden}
+.lk .v img{width:100%;height:100%;object-fit:cover}
+.lk .v svg.sk{width:76%;height:88%}
+.lk .ln{font-size:11px;font-weight:700;margin-top:7px;line-height:1.25}
+.lk .ls{font-size:10px;color:var(--mut)}
+.look.sm .lk .ln{font-size:10px}
+.pls{font-family:Fraunces,serif;font-style:italic;font-size:24px;color:var(--acc);padding:0 1px}
+.look.sm .pls{font-size:18px}
+.why{border-top:1px dashed var(--line);margin:14px 16px 0;padding:13px 2px 15px}
+.why h4{font-size:10px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--mut);margin-bottom:8px}
+.why ul{list-style:none}
+.why li{font-family:Fraunces,serif;font-style:italic;font-size:14.5px;line-height:1.5;padding-left:16px;position:relative;margin-bottom:5px}
+.why li::before{content:"—";position:absolute;left:0;color:var(--acc)}
+.warnbox{display:flex;gap:9px;align-items:flex-start;background:#F4E9CF;border:1px solid #DBBF7E;border-radius:9px;padding:11px 13px;font-size:13px;color:#6d4d10;margin:14px 16px 0}
+.actrow{display:flex;gap:9px;padding:0 14px 15px;flex-wrap:wrap}
+.actrow .btn{flex:1;min-width:120px;padding:12px 8px;font-size:13px}
+.whoops{width:100%;background:var(--acc2);border:1.5px solid var(--acc);border-radius:var(--r);color:var(--acc);padding:20px 16px;text-align:center;margin-top:20px}
+.whoops .wt{font-family:Fraunces,serif;font-style:italic;font-weight:600;font-size:21px;line-height:1.2}
+.whoops .ws{font-size:12px;margin-top:5px}
+.whoops:active{transform:scale(.98)}
+.morelist{margin-top:8px}
+.morerow{display:flex;align-items:center;gap:13px;padding:15px 4px;border-bottom:1px solid var(--line);width:100%;text-align:left}
+.morerow:last-child{border-bottom:none}
+.morerow .mi{color:var(--acc)}
+.morerow .mt{flex:1;font-weight:700;font-size:14.5px}
+.morerow .mt small{display:block;font-weight:400;font-size:11.5px;color:var(--mut)}
+.morerow .ar{color:var(--mut)}
+
+/* ---------- Closet ---------- */
+.srch{display:flex;align-items:center;gap:9px;border:1.5px solid var(--line);background:var(--paper);border-radius:999px;padding:10px 15px;margin-bottom:12px}
+.srch input{border:none;outline:none;background:none;flex:1;font-size:14px}
+.subrow{margin-top:8px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:13px}
+.piece{background:var(--paper);border:1px solid var(--line);border-radius:var(--r);padding:9px;cursor:pointer;transition:transform .1s}
+.piece:active{transform:scale(.97)}
+.piece .ph{position:relative;background:var(--paper2);border-radius:8px;aspect-ratio:5/6;display:flex;align-items:center;justify-content:center;overflow:hidden}
+.piece .ph img{width:100%;height:100%;object-fit:cover}
+.piece .ph svg.sk{width:74%;height:88%}
+.sdot{position:absolute;top:7px;right:7px;width:11px;height:11px;border-radius:50%;border:1.5px solid rgba(28,26,21,.25)}
+.sdot.ok{background:var(--good)} .sdot.laundry{background:var(--acc)} .sdot.drying{background:#D8A23A} .sdot.out{background:#57503F}
+.pf{position:absolute;top:6px;left:7px;color:var(--acc)}
+.piece .pt{font-size:12px;font-weight:700;margin-top:8px;line-height:1.3}
+.piece .ps{font-size:10.5px;color:var(--mut)}
+.empty{text-align:center;padding:52px 22px}
+.empty .et{font-family:Fraunces,serif;font-size:22px;font-weight:600;margin-bottom:7px}
+.empty p{color:var(--mut);font-size:13.5px;margin-bottom:20px}
+
+/* ---------- Add item ---------- */
+.cam{border:1.5px dashed var(--ink);border-radius:var(--r);background:var(--paper);padding:24px 16px;text-align:center}
+.cam .cv{width:140px;height:168px;margin:0 auto 12px;border-radius:10px;background:var(--paper2);border:1px solid var(--line);display:flex;align-items:center;justify-content:center;overflow:hidden}
+.cam .cv img{width:100%;height:100%;object-fit:cover}
+.cam .cv svg.sk{width:76%;height:88%}
+.detected{display:flex;align-items:center;gap:9px;background:var(--acc2);border:1px solid #E3C4B4;color:#8A2A18;border-radius:9px;padding:10px 13px;font-size:13px;font-weight:600;margin-top:11px}
+.detected .sw{width:18px;height:18px;border:1.5px solid rgba(0,0,0,.2)}
+.frow{margin-bottom:5px}
+.frow input[type=text],.frow input[type=number]{width:100%;border:1.5px solid var(--line);background:var(--paper);border-radius:9px;padding:12px 14px;font-size:15px;outline:none}
+.frow input:focus{border-color:var(--ink)}
+.swgrid{display:flex;flex-wrap:wrap;gap:10px}
+.sw{width:30px;height:30px;border-radius:50%;border:1.5px solid rgba(28,26,21,.22);cursor:pointer;position:relative}
+.sw.on{box-shadow:0 0 0 2px var(--paper),0 0 0 4px var(--ink)}
+.favtoggle{display:flex;align-items:center;gap:9px;border:1.5px solid var(--line);border-radius:9px;padding:11px 14px;width:100%;background:var(--paper);font-weight:600;font-size:14px}
+.favtoggle .fh{margin-left:auto;color:var(--line)}
+.favtoggle.on{border-color:var(--acc)}
+.favtoggle.on .fh{color:var(--acc)}
+
+/* ---------- Generator ---------- */
+.steps{display:flex;gap:6px;margin-bottom:16px}
+.stp{flex:1;display:flex;align-items:center;gap:7px;font-size:11px;font-weight:700;color:var(--mut)}
+.stp b{width:22px;height:22px;border-radius:50%;border:1.5px solid var(--line);display:flex;align-items:center;justify-content:center;font-size:11px;flex:none}
+.stp.on{color:var(--ink)} .stp.on b{background:var(--ink);border-color:var(--ink);color:var(--paper)}
+.stp.done b{background:var(--acc);border-color:var(--acc);color:#fff}
+.qtitle{font-family:Fraunces,serif;font-size:26px;font-weight:600;letter-spacing:-.01em;margin-bottom:4px}
+.qsub{font-size:13px;color:var(--mut);margin-bottom:16px}
+.anchchip{display:inline-flex;align-items:center;gap:8px;background:var(--paper);border:1.5px solid var(--ink);border-radius:999px;padding:7px 8px 7px 13px;font-weight:700;font-size:12.5px;margin-bottom:14px}
+.reschips{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:12px}
+.errbox{margin-top:26px}
+
+/* ---------- Calendar ---------- */
+.calhead{display:flex;align-items:center;margin-bottom:10px}
+.calhead h2{font-family:Fraunces,serif;font-size:24px;font-weight:600;flex:1;text-align:center}
+.calhead button{width:36px;height:36px;border:1.5px solid var(--line);border-radius:50%;display:flex;align-items:center;justify-content:center}
+.dow{display:grid;grid-template-columns:repeat(7,1fr);text-align:center;font-size:10px;font-weight:700;letter-spacing:.1em;color:var(--mut);text-transform:uppercase;margin-bottom:5px}
+.dgrid{display:grid;grid-template-columns:repeat(7,1fr);gap:3px}
+.day{aspect-ratio:1/1.08;border-radius:8px;padding:4px 3px 3px;display:flex;flex-direction:column;align-items:center;cursor:pointer;border:1px solid transparent}
+.day:hover{background:var(--paper2)}
+.day .dn{font-size:11.5px;font-weight:700}
+.day.off .dn{color:#C6BCA6}
+.day.today .dn{background:var(--ink);color:var(--paper);border-radius:50%;width:19px;height:19px;display:flex;align-items:center;justify-content:center}
+.day.plan .dn{color:var(--acc)}
+.dots{display:flex;flex-direction:column;gap:2.5px;margin-top:4px}
+.dots i{width:15px;height:4.5px;border-radius:2px;border:1px solid rgba(28,26,21,.18)}
+.day .pin{width:5px;height:5px;border-radius:50%;background:var(--acc);margin-top:5px}
+.legend{display:flex;gap:16px;justify-content:center;font-size:11px;color:var(--mut);margin-top:13px;flex-wrap:wrap}
+.legend i{display:inline-block;width:12px;height:4px;border-radius:2px;border:1px solid rgba(28,26,21,.18);vertical-align:middle;margin-right:5px;margin-bottom:1px}
+
+/* ---------- Stats ---------- */
+.effcard{display:flex;align-items:center;gap:18px;padding:18px}
+.ring{position:relative;width:104px;height:104px;flex:none}
+.ring svg{transform:rotate(-90deg)}
+.ring .rv{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.ring .rv b{font-family:Fraunces,serif;font-size:27px;font-weight:600}
+.ring .rv span{font-size:9px;font-weight:700;letter-spacing:.12em;color:var(--mut)}
+.effcard p{font-size:13.5px;line-height:1.5}
+.palrow{display:flex;gap:9px;align-items:center;padding:4px 2px}
+.palsw{width:34px;height:34px;border-radius:50%;border:1.5px solid rgba(28,26,21,.2)}
+.rank{display:flex;align-items:center;gap:12px;padding:11px 13px;border-bottom:1px solid var(--line)}
+.rank:last-child{border-bottom:none}
+.rank .med{font-family:Fraunces,serif;font-size:22px;font-weight:600;width:26px;text-align:center;flex:none;color:var(--mut)}
+.rank:first-child .med{color:var(--acc)}
+.rank .rthumb{width:38px;height:46px;background:var(--paper2);border:1px solid var(--line);border-radius:7px;display:flex;align-items:center;justify-content:center;overflow:hidden;flex:none}
+.rank .rthumb svg.sk{width:74%;height:88%}
+.rank .rt{flex:1;font-weight:700;font-size:13.5px;line-height:1.3}
+.rank .rt small{display:block;font-weight:400;color:var(--mut);font-size:11.5px}
+.rank .rn{font-family:Fraunces,serif;font-size:19px;font-weight:600;flex:none}
+.hbar{display:flex;height:15px;border-radius:8px;overflow:hidden;border:1px solid var(--line)}
+.hbar i{height:100%}
+.hleg{display:flex;gap:16px;font-size:11.5px;color:var(--mut);margin-top:9px;flex-wrap:wrap}
+.hleg i{display:inline-block;width:10px;height:10px;border-radius:3px;vertical-align:-1px;margin-right:5px}
+
+/* ---------- Travel / Lab / Favorites ---------- */
+.stepper{display:flex;align-items:center;justify-content:center;gap:20px;margin:6px 0 4px}
+.stepper button{width:44px;height:44px;border:1.5px solid var(--ink);border-radius:50%;font-size:22px;font-weight:700}
+.stepper b{font-family:Fraunces,serif;font-size:42px;font-weight:600;min-width:70px;text-align:center}
+.stepper span{display:block;text-align:center;font-size:11px;font-weight:700;letter-spacing:.12em;color:var(--mut);text-transform:uppercase}
+.packrow{display:flex;align-items:center;gap:12px;padding:12px 14px;border-bottom:1px solid var(--line)}
+.packrow:last-child{border-bottom:none}
+.packrow .pk{font-family:Fraunces,serif;font-size:21px;font-weight:600;width:34px;flex:none}
+.packrow .pt2{flex:1;font-weight:700;font-size:13.5px}
+.packrow .pt2 small{display:block;font-weight:400;color:var(--mut);font-size:11px}
+.matchrow{display:flex;align-items:center;gap:11px;padding:10px 12px;border-bottom:1px solid var(--line)}
+.matchrow:last-child{border-bottom:none}
+.matchrow .mk{width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex:none}
+.matchrow .mk.y{background:var(--good);color:#fff}
+.matchrow .mk.n{background:var(--acc);color:#fff}
+.matchrow .mk.m{background:#D8A23A;color:#fff}
+.matchrow .mt2{flex:1;font-weight:700;font-size:13px;line-height:1.3}
+.matchrow .mt2 small{display:block;font-weight:400;color:var(--mut);font-size:11px}
+.favrow{padding:13px 13px 10px;margin-bottom:13px}
+.favrow .fmeta{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--mut);margin:8px 2px 10px;flex-wrap:wrap}
+
+/* ---------- Settings ---------- */
+.setrow{padding:15px 15px;border-bottom:1px solid var(--line)}
+.setrow:last-child{border-bottom:none}
+.setrow .st3{font-weight:700;font-size:14.5px;margin-bottom:3px}
+.setrow .ss3{font-size:12.5px;color:var(--mut);margin-bottom:11px}
+
+/* ---------- Bottom nav ---------- */
+.bnav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:480px;background:var(--paper);border-top:1px solid var(--line);display:flex;padding:8px 6px calc(8px + env(safe-area-inset-bottom));z-index:40}
+.bnav button{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;color:var(--mut);padding:5px 2px;position:relative}
+.bnav button span{font-size:9.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase}
+.bnav button.on{color:var(--ink)}
+.bnav button.on::before{content:"";position:absolute;top:-9px;width:22px;height:3px;border-radius:2px;background:var(--acc)}
+
+/* ---------- Modal / Toast ---------- */
+.mback{position:fixed;inset:0;background:rgba(28,26,21,.45);z-index:60;display:flex;align-items:flex-end;justify-content:center;animation:fade .2s}
+@keyframes fade{from{opacity:0}}
+.msheet{background:var(--bg);width:100%;max-width:480px;max-height:88dvh;overflow:auto;border-radius:20px 20px 0 0;padding:14px 18px calc(22px + env(safe-area-inset-bottom));animation:slideup .28s cubic-bezier(.2,.8,.25,1)}
+@keyframes slideup{from{transform:translateY(60px);opacity:.4}}
+.msheet h3{font-family:Fraunces,serif;font-size:23px;font-weight:600;margin-bottom:4px}
+.mrow{display:flex;gap:9px;margin-top:16px;flex-wrap:wrap}
+.mrow .btn{flex:1;padding:11px 8px;font-size:13px}
+.mclose{position:absolute;top:14px;right:16px;color:var(--mut)}
+#toasts{position:fixed;bottom:92px;left:50%;transform:translateX(-50%);z-index:80;display:flex;flex-direction:column;align-items:center;gap:8px;width:max-content;max-width:90vw}
+.toast{background:var(--ink);color:var(--paper);border-radius:999px;padding:11px 20px;font-size:13.5px;font-weight:600;opacity:0;transform:translateY(12px);transition:.28s;max-width:100%;text-align:center}
+.toast.on{opacity:1;transform:none}
+body.lock{overflow:hidden}
+
+/* ---------- Splash ---------- */
+#splash{position:fixed;inset:0;z-index:100;background:var(--bg);display:flex;align-items:center;justify-content:center;transition:opacity .45s}
+#splash.bye{opacity:0;pointer-events:none}
+.spin{animation:sway 2.6s ease-in-out infinite;transform-origin:50% 4%}
+@keyframes sway{0%,100%{transform:rotate(-5deg)}50%{transform:rotate(5deg)}}
+.sp-in{text-align:center}
+.sp-in .st{font-family:Fraunces,serif;font-style:italic;font-size:26px;font-weight:600;margin-top:18px;animation:up .7s .25s both}
+.sp-in .ss{font-size:11px;font-weight:700;letter-spacing:.34em;color:var(--acc);margin-top:8px;animation:up .7s .4s both}
+
+/* ---------- Desktop ---------- */
+@media(min-width:560px){
+  body{background:#E9E1D0}
+  body::before{content:"";position:fixed;inset:0;pointer-events:none;background-image:radial-gradient(#D6CCB4 1.1px,transparent 1.3px);background-size:26px 26px}
+  #app{box-shadow:0 0 0 1px var(--line),0 40px 80px -40px rgba(28,26,21,.35)}
+}
+</style>
+</head>
+<body>
+
+<div id="splash">
+  <div class="sp-in">
+    <svg class="spin" width="120" height="120" viewBox="0 0 100 100" fill="none" stroke="#1C1A15" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M50 34v-6a8.5 8.5 0 1 1 8.5-8.5"/>
+      <path d="M50 34 15.5 57a7.5 7.5 0 0 0 4.3 13.7h60.4A7.5 7.5 0 0 0 84.5 57L50 34z"/>
+      <circle cx="50" cy="62" r="4.5" fill="#C13B25" stroke="none"/>
+    </svg>
+    <div class="st">What's in My Closet?</div>
+    <div class="ss">MY&nbsp;CLOSET</div>
+  </div>
+</div>
+
+<div id="app">
+  <main>
+    <section class="screen" id="scr-home"></section>
+    <section class="screen" id="scr-closet"></section>
+    <section class="screen" id="scr-add"></section>
+    <section class="screen" id="scr-gen"></section>
+    <section class="screen" id="scr-cal"></section>
+    <section class="screen" id="scr-stats"></section>
+    <section class="screen" id="scr-fav"></section>
+    <section class="screen" id="scr-travel"></section>
+    <section class="screen" id="scr-lab"></section>
+    <section class="screen" id="scr-set"></section>
+  </main>
+  <nav class="bnav" id="bnav"></nav>
+  <div id="mroot"></div>
+  <div id="toasts"></div>
+  <input type="file" id="fpick" accept="image/*" hidden>
+</div>
+
+<script>
+/* =====================================================================
+   MY CLOSET — What's in My Closet?
+   كل البيانات محلية في localStorage — مفيش أي سيرفر ولا API
+===================================================================== */
+
+/* ---------- 1) ثوابت ---------- */
+const CATS={
+  tops:{label:'Tops',subs:['T-Shirt','Shirt','Blouse','Sweater','Dress','Jacket']},
+  bottoms:{label:'Bottoms',subs:['Jeans','Pants','Skirt','Shorts']},
+  shoes:{label:'Shoes',subs:['Sneakers','Boots','Sandals','Formal']},
+  accessories:{label:'Accessories',subs:['Bag','Scarf','Belt','Watch']}
+};
+const COLORS={
+  White:'#F4EFE2',Black:'#26231C',Grey:'#9B9586',Beige:'#D9C6A5',Navy:'#27354E',
+  Blue:'#4A668C','Light Blue':'#A9C3D6',Red:'#B33A2B',Green:'#5A6B4F',Olive:'#6E6B3F',
+  Yellow:'#D9A93B',Pink:'#D8A0A6',Purple:'#6A5578',Brown:'#7A5A3E',Camel:'#C09858',
+  Burgundy:'#6E2F33','Neon Green':'#98C73A',Orange:'#CE7B39'
+};
+const FAM={warm:['Red','Burgundy','Orange','Pink','Yellow'],cool:['Blue','Light Blue','Navy','Purple'],green:['Green','Olive','Neon Green']};
+const NEUTRALS=new Set(['White','Black','Grey','Beige','Navy','Blue','Light Blue','Brown','Camel','Burgundy']);
+const STYLES=['Casual','Formal','Elegant','Sporty','Minimal','Streetwear'];
+const SEASONS=['Summer','Spring','Autumn','Winter'];
+const STATUS={ok:{l:'Clean',d:'var(--good)'},laundry:{l:'In laundry',d:'var(--acc)'},drying:{l:'Drying',d:'#D8A23A'},out:{l:'Set aside',d:'#57503F'}};
+const OCC={
+  work:{label:'Work',icon:'brief',styles:['Formal','Minimal','Elegant']},
+  university:{label:'University',icon:'cap',styles:['Casual','Streetwear','Minimal']},
+  casual:{label:'Casual day',icon:'cup',styles:['Casual','Minimal']},
+  dinner:{label:'Dinner',icon:'wine',styles:['Elegant','Formal']},
+  party:{label:'Party',icon:'party',styles:['Elegant','Streetwear']},
+  sport:{label:'Sport',icon:'sport',styles:['Sporty']},
+  travel:{label:'Travel',icon:'plane',styles:['Casual','Sporty']},
+  home:{label:'Home',icon:'home',styles:['Casual']}
+};
+const WEATHER={
+  hot:{label:'Hot',icon:'sun',seasons:['Summer']},
+  warm:{label:'Warm',icon:'csun',seasons:['Spring','Autumn']},
+  rainy:{label:'Rainy',icon:'rain',seasons:['Autumn','Spring']},
+  cold:{label:'Cold',icon:'snow',seasons:['Winter','Autumn']}
+};
+const MOODS=[['Elegant','I want to look elegant.'],['Comfortable','I want to feel comfy.'],['Bold','I want to stand out.'],['Relaxed','Keep it quiet and minimal.'],['Playful','Something fun today.']];
+const MOOD2STYLE={Elegant:'Elegant',Comfortable:'Casual',Bold:'Streetwear',Relaxed:'Minimal',Playful:'Casual'};
+const COLLECTIONS=['Work','Casual','Night Out','Travel','Events','Unsorted'];
+
+/* ---------- 2) أيقونات SVG مرسومة يدويًا ---------- */
+const I={
+ home:'<path d="M4 11.5 12 4.5l8 7V20h-5.5v-5h-5v5H4z"/>',
+ hanger:'<path d="M12 8.7V7a2.1 2.1 0 1 1 2.1-2.1"/><path d="M12 8.7 4.6 13.7a1.9 1.9 0 0 0 1.1 3.4h12.6a1.9 1.9 0 0 0 1.1-3.4L12 8.7z"/>',
+ sparkle:'<path d="M12 3l2 5.5L19.5 11 14 13l-2 5.5L10 13 4.5 11 10 8.5z" fill="currentColor" stroke="none"/><path d="M18.6 15.2l.7 2 2 .7-2 .7-.7 2-.7-2-2-.7 2-.7z" fill="currentColor" stroke="none"/>',
+ cal:'<rect x="4" y="6" width="16" height="15" rx="2"/><path d="M4 10.5h16M8.5 3.5v4M15.5 3.5v4"/>',
+ chart:'<path d="M5 20V11M12 20V5M19 20v-7M3 20h18"/>',
+ heart:'<path d="M12 20.2S3.6 15.4 3 10.4A4.4 4.4 0 0 1 12 7.6a4.4 4.4 0 0 1 9 2.8c-.6 5-9 9.8-9 9.8z"/>',
+ plus:'<path d="M12 5v14M5 12h14"/>',
+ back:'<path d="M14.5 5 7.5 12l7 7"/>',
+ fwd:'<path d="M9.5 5l7 7-7 7"/>',
+ camera:'<path d="M4 8h3l2-2.5h6L17 8h3a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9a1 1 0 0 1 1-1z"/><circle cx="12" cy="13.5" r="3.5"/>',
+ refresh:'<path d="M20 12a8 8 0 1 1-2.5-5.8M20 3.5V8h-4.5"/>',
+ check:'<path d="M5 12.5l4.5 4.5L19 7.5"/>',
+ x:'<path d="M6 6l12 12M18 6 6 18"/>',
+ trash:'<path d="M4 7h16M9.5 7V4.5h5V7M6.5 7l1 13.5h9l1-13.5M10 11v6M14 11v6"/>',
+ pencil:'<path d="M4 20l1-4L16.5 4.5a2.1 2.1 0 0 1 3 3L8 19l-4 1z"/>',
+ bag:'<path d="M8 8V6.5a4 4 0 0 1 8 0V8"/><rect x="4" y="8" width="16" height="12.5" rx="2"/>',
+ drop:'<path d="M12 3.5s6 6.8 6 10.7a6 6 0 0 1-12 0C6 10.3 12 3.5 12 3.5z"/>',
+ gear:'<circle cx="12" cy="12" r="3.2"/><path d="M12 2.8v3M12 18.2v3M2.8 12h3M18.2 12h3M5.5 5.5l2.1 2.1M16.4 16.4l2.1 2.1M18.5 5.5l-2.1 2.1M7.6 16.4l-2.1 2.1"/>',
+ sun:'<circle cx="12" cy="12" r="4"/><path d="M12 2.5v2.5M12 19v2.5M2.5 12H5M19 12h2.5M5 5l1.8 1.8M17.2 17.2 19 19M19 5l-1.8 1.8M6.8 17.2 5 19"/>',
+ csun:'<path d="M7 3.5V2M2.5 8H1M4 4.5 3 3.5M10 4.5 11 3.5"/><path d="M7.5 19a3.8 3.8 0 0 1 .5-7.6 4.8 4.8 0 0 1 9.2 1.2A3.2 3.2 0 0 1 16.8 19z"/>',
+ rain:'<path d="M7.5 15a3.8 3.8 0 0 1 .5-7.6 4.8 4.8 0 0 1 9.2 1.2A3.2 3.2 0 0 1 16.8 15z"/><path d="M8.5 18l-.8 2.5M12.5 18l-.8 2.5M16.5 18l-.8 2.5"/>',
+ snow:'<path d="M12 3v18M4.2 7.5l15.6 9M19.8 7.5l-15.6 9M12 3l-2 2M12 3l2 2M12 21l-2-2M12 21l2-2"/>',
+ brief:'<rect x="4" y="8" width="16" height="12" rx="2"/><path d="M9.5 8V5.5h5V8M4 13h16"/>',
+ cap:'<path d="M2.5 10 12 5.5 21.5 10 12 14.5z"/><path d="M6.5 12v4.5c0 1.4 2.5 2.8 5.5 2.8s5.5-1.4 5.5-2.8V12M21.5 10v5"/>',
+ cup:'<path d="M4 9h12v6a4.5 4.5 0 0 1-4.5 4.5h-3A4.5 4.5 0 0 1 4 15z"/><path d="M16 10.5h2a2.5 2.5 0 0 1 0 5h-2M8 5.5c0-1 1-1 1-2M12 5.5c0-1 1-1 1-2"/>',
+ wine:'<path d="M8 3.5h8l-.8 6.8a3.2 3.2 0 0 1-2.7 2.6v5.1h3.5v2.5H9v-2.5h3.5v-5.1a3.2 3.2 0 0 1-2.7-2.6z"/>',
+ party:'<path d="M12 3l2 5.5L19.5 11 14 13l-2 5.5L10 13 4.5 11 10 8.5z" fill="currentColor" stroke="none"/><path d="M19 3.5v3M17.5 5H20M6 16v2.5M4.75 17.25h2.5"/>',
+ sport:'<path d="M7.5 7.5v9M4 9.5v5M16.5 7.5v9M20 9.5v5M7.5 12h9"/>',
+ plane:'<path d="M21 3.5 4 10.5l5 1.9 1.8 6.1 2.2-4.1 4.7 1.8z"/><path d="M9 12.4 21 3.5"/>',
+ compass:'<circle cx="12" cy="12" r="9"/><path d="M15.5 8.5 13.5 13.5 8.5 15.5 10.5 10.5z"/>'
+};
+const ic=(k,s=22,f)=>`<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="${f?'currentColor':'none'}" stroke="${f?'none':'currentColor'}" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">${I[k]||''}</svg>`;
+
+/* ---------- 3) رسمات الملابس (لكل قطعة بدون صورة) ---------- */
+const DET='rgba(24,22,17,.4)';
+const SK={
+ 'T-Shirt':c=>`<path d="M50 14 L75 23 L69 38 L63 34 L63 104 L37 104 L37 34 L31 38 L25 23 Z" fill="${c}" stroke="${DET}"/><path d="M43 18 Q50 27 57 18" fill="none" stroke="${DET}"/>`,
+ Shirt:c=>`<path d="M50 16 L76 24 L70 40 L64 36 L64 106 L36 106 L36 36 L30 40 L24 24 Z" fill="${c}" stroke="${DET}"/><path d="M43 16 L50 25 L57 16" fill="none" stroke="${DET}"/><path d="M50 25 L50 106" stroke="${DET}"/><circle cx="50" cy="40" r="1.6" fill="${DET}"/><circle cx="50" cy="53" r="1.6" fill="${DET}"/><circle cx="50" cy="66" r="1.6" fill="${DET}"/><circle cx="50" cy="79" r="1.6" fill="${DET}"/><circle cx="50" cy="92" r="1.6" fill="${DET}"/>`,
+ Blouse:c=>`<path d="M50 16 L79 25 L72 47 L64 43 L64 100 Q57 106 50 100 Q43 106 36 100 L36 43 L28 47 L21 25 Z" fill="${c}" stroke="${DET}"/><path d="M44 19 Q50 26 56 19" fill="none" stroke="${DET}"/><path d="M40 62 Q44 65 40 68 M60 62 Q56 65 60 68" fill="none" stroke="${DET}"/>`,
+ Sweater:c=>`<path d="M50 16 L83 27 L75 54 L68 50 L68 98 L32 98 L32 50 L25 54 L17 27 Z" fill="${c}" stroke="${DET}"/><rect x="40" y="13" width="20" height="8" rx="3" fill="${c}" stroke="${DET}"/><path d="M32 91 h36 M32 95 h36" stroke="${DET}"/><path d="M42 60 l5 5 5 -5 M52 72 l5 5 5 -5" fill="none" stroke="${DET}"/>`,
+ Dress:c=>`<path d="M44 14 L56 14 L59 32 L63 58 Q78 82 84 108 L16 108 Q22 82 37 58 L41 32 Z" fill="${c}" stroke="${DET}"/><path d="M46 14 Q50 20 54 14" fill="none" stroke="${DET}"/><path d="M37 58 h26" stroke="${DET}"/><path d="M44 62 L26 108 M56 62 L74 108" fill="none" stroke="${DET}"/>`,
+ Jacket:c=>`<path d="M50 18 L80 27 L73 52 L66 48 L66 104 L34 104 L34 48 L27 52 L20 27 Z" fill="${c}" stroke="${DET}"/><path d="M43 18 L50 27 L57 18" fill="none" stroke="${DET}"/><path d="M50 27 L56 33 L56 104 M50 27 L44 33 L44 104" fill="none" stroke="${DET}"/><path d="M38 84 h8 M54 84 h8" stroke="${DET}"/>`,
+ Jeans:c=>`<path d="M34 14 L66 14 L63 34 L62 106 L53 106 L50 50 L47 106 L38 106 L37 34 Z" fill="${c}" stroke="${DET}"/><path d="M34 21 h32" stroke="${DET}"/><path d="M38 26 Q43 32 48 26 M62 26 Q57 32 52 26" fill="none" stroke="${DET}"/><path d="M44 36 L43 104 M56 36 L57 104" fill="none" stroke="${DET}"/>`,
+ Pants:c=>`<path d="M35 14 L65 14 L62 36 L61 106 L54 106 L50 48 L46 106 L39 106 L38 36 Z" fill="${c}" stroke="${DET}"/><path d="M35 21 h30" stroke="${DET}"/><path d="M46 40 L45 104 M54 40 L55 104" fill="none" stroke="${DET}"/>`,
+ Skirt:c=>`<path d="M36 18 L64 18 L66 32 L82 104 L18 104 L34 32 Z" fill="${c}" stroke="${DET}"/><path d="M36 24 h28" stroke="${DET}"/><path d="M50 32 L50 104 M42 32 L32 104 M58 32 L68 104" fill="none" stroke="${DET}"/>`,
+ Shorts:c=>`<path d="M34 18 L66 18 L63 40 L62 74 L52 74 L50 48 L48 74 L38 74 L37 40 Z" fill="${c}" stroke="${DET}"/><path d="M34 24 h32" stroke="${DET}"/><path d="M38 69 h10 M52 69 h10" stroke="${DET}"/>`,
+ Sneakers:c=>`<path d="M12 88 Q8 62 32 56 L45 38 Q58 30 64 46 L70 60 Q84 64 88 76 Q91 84 84 88 Z" fill="${c}" stroke="${DET}"/><path d="M12 88 L90 88 Q94 88 94 93 Q94 99 87 99 L17 99 Q10 99 10 92 Z" fill="${c}" stroke="${DET}"/><path d="M46 52 L58 48 M44 60 L60 56 M42 68 L62 64" fill="none" stroke="${DET}"/><path d="M60 66 Q72 66 80 74" fill="none" stroke="${DET}"/>`,
+ Boots:c=>`<path d="M40 14 L60 14 L61 68 L86 82 Q94 86 92 96 L32 96 L38 68 Z" fill="${c}" stroke="${DET}"/><path d="M40 20 h20" stroke="${DET}"/><path d="M38 88 h52" stroke="${DET}"/>`,
+ Sandals:c=>`<path d="M14 92 Q50 102 86 92 L84 84 Q50 92 16 84 Z" fill="${c}" stroke="${DET}"/><path d="M28 84 Q50 62 72 84 M38 86 Q50 74 62 86" fill="none" stroke="${DET}"/>`,
+ Formal:c=>`<path d="M12 92 Q12 66 38 62 L54 44 Q68 38 74 54 L86 76 Q92 86 84 92 Z" fill="${c}" stroke="${DET}"/><path d="M12 92 Q40 84 84 92" fill="none" stroke="${DET}"/><path d="M52 60 Q60 56 66 64" fill="none" stroke="${DET}"/>`,
+ Bag:c=>`<path d="M36 44 Q50 16 64 44" fill="none" stroke="${DET}" stroke-width="3"/><rect x="26" y="44" width="48" height="56" rx="5" fill="${c}" stroke="${DET}"/><path d="M26 58 h48" stroke="${DET}"/><circle cx="50" cy="62" r="3" fill="${DET}"/>`,
+ Scarf:c=>`<rect x="32" y="14" width="36" height="18" rx="3" fill="${c}" stroke="${DET}"/><path d="M36 32 h12 l-4 62 h-12 z" fill="${c}" stroke="${DET}"/><path d="M52 32 h12 l4 62 h-12 z" fill="${c}" stroke="${DET}"/><path d="M33 96 h8 M46 96 h8 M59 96 h8" stroke="${DET}"/>`,
+ Belt:c=>`<rect x="10" y="50" width="70" height="14" rx="2" fill="${c}" stroke="${DET}"/><rect x="70" y="44" width="16" height="26" rx="3" fill="${c}" stroke="${DET}"/><rect x="74" y="48" width="8" height="18" rx="2" fill="none" stroke="${DET}"/><circle cx="20" cy="57" r="1.5" fill="${DET}"/><circle cx="28" cy="57" r="1.5" fill="${DET}"/><circle cx="36" cy="57" r="1.5" fill="${DET}"/>`,
+ Watch:c=>`<rect x="43" y="22" width="14" height="26" rx="4" fill="${c}" stroke="${DET}"/><rect x="43" y="72" width="14" height="26" rx="4" fill="${c}" stroke="${DET}"/><circle cx="50" cy="60" r="16" fill="${c}" stroke="${DET}"/><path d="M50 60 L50 50 M50 60 L57 63" stroke="${DET}"/>`
+};
+function sketchOf(it){return `<svg class="sk" viewBox="0 0 100 120" xmlns="http://www.w3.org/2000/svg">${(SK[it.sub]||SK['T-Shirt'])(COLORS[it.color]||'#999')}</svg>`}
+
+/* ---------- 4) مخزن البيانات ---------- */
+const DB={items:[],outfits:[],settings:{noRepeat:7,weather:'warm',dailySalt:0}};
+function save(){try{localStorage.setItem('closet.db',JSON.stringify(DB))}catch(e){toast('Storage is full — try smaller photos')}}
+function loadDb(){try{const d=JSON.parse(localStorage.getItem('closet.db'));if(d&&d.items){DB.items=d.items;DB.outfits=d.outfits||[];DB.settings=Object.assign({noRepeat:7,weather:'warm',dailySalt:0},d.settings);return true}}catch(e){}return false}
+
+const SEED=[
+ {id:'s1',name:'White Oversized Shirt',cat:'tops',sub:'Shirt',color:'White',style:'Casual',seasons:['Summer','Spring','Autumn'],price:450,favorite:true},
+ {id:'s2',name:'Black T-Shirt',cat:'tops',sub:'T-Shirt',color:'Black',style:'Minimal',seasons:['Summer','Spring','Autumn','Winter'],price:180},
+ {id:'s3',name:'Beige Knit Sweater',cat:'tops',sub:'Sweater',color:'Beige',style:'Casual',seasons:['Winter','Autumn'],price:600},
+ {id:'s4',name:'Navy Blouse',cat:'tops',sub:'Blouse',color:'Navy',style:'Elegant',seasons:['Spring','Autumn','Winter'],price:520},
+ {id:'s5',name:'Denim Jacket',cat:'tops',sub:'Jacket',color:'Blue',style:'Streetwear',seasons:['Spring','Autumn'],price:900,favorite:true},
+ {id:'s6',name:'Red Dress',cat:'tops',sub:'Dress',color:'Red',style:'Elegant',seasons:['Summer'],price:800},
+ {id:'s7',name:'Green Silk Blouse',cat:'tops',sub:'Blouse',color:'Green',style:'Elegant',seasons:['Summer','Spring'],price:750},
+ {id:'s8',name:'Blue Straight Jeans',cat:'bottoms',sub:'Jeans',color:'Blue',style:'Casual',seasons:['Summer','Spring','Autumn','Winter'],price:700,favorite:true},
+ {id:'s9',name:'Black Tailored Pants',cat:'bottoms',sub:'Pants',color:'Black',style:'Formal',seasons:['Spring','Autumn','Winter'],price:650},
+ {id:'s10',name:'Beige Skirt',cat:'bottoms',sub:'Skirt',color:'Beige',style:'Casual',seasons:['Summer','Spring'],price:480},
+ {id:'s11',name:'White Sneakers',cat:'shoes',sub:'Sneakers',color:'White',style:'Casual',seasons:['Summer','Spring','Autumn'],price:1100,favorite:true},
+ {id:'s12',name:'Black Boots',cat:'shoes',sub:'Boots',color:'Black',style:'Streetwear',seasons:['Winter','Autumn'],price:1400},
+ {id:'s13',name:'Brown Sandals',cat:'shoes',sub:'Sandals',color:'Brown',style:'Casual',seasons:['Summer'],price:550},
+ {id:'s14',name:'Black Shoulder Bag',cat:'accessories',sub:'Bag',color:'Black',style:'Elegant',seasons:['Summer','Spring','Autumn','Winter'],price:1200,favorite:true},
+ {id:'s15',name:'Silver Watch',cat:'accessories',sub:'Watch',color:'Grey',style:'Minimal',seasons:['Summer','Spring','Autumn','Winter'],price:900},
+ {id:'s16',name:'Camel Scarf',cat:'accessories',sub:'Scarf',color:'Camel',style:'Casual',seasons:['Winter','Autumn'],price:300,status:'laundry'},
+ {id:'s17',name:'Neon Green Shirt',cat:'tops',sub:'Shirt',color:'Neon Green',style:'Streetwear',seasons:['Summer'],price:350}
+];
+function seedDb(){
+  DB.items=SEED.map(s=>Object.assign({timesWorn:0,lastWorn:null,status:'ok',img:null,created:Date.now()-SEED.length*7},s));
+  DB.outfits=[];DB.settings={noRepeat:7,weather:'warm',dailySalt:0};
+  // تاريخ لبس لآخر ٤ أسابيع — عشان الإحصائيات والتقويم يكونوا حيين من أول لحظة
+  const r=rng(20240915);
+  const combos={
+    A:{top:'s1',bottom:'s8',shoes:'s11'}, B:{top:'s2',bottom:'s8',shoes:'s11'},
+    C:{top:'s4',bottom:'s9',shoes:'s12'}, D:{top:'s1',bottom:'s9',shoes:'s12'},
+    E:{top:'s3',bottom:'s9',shoes:'s12'}, W:{top:'s6',bottom:null,shoes:'s13'},
+    K:{top:'s2',bottom:'s10',shoes:'s13'}
+  };
+  for(let d=27;d>=1;d--){
+    const dt=new Date();dt.setDate(dt.getDate()-d);const ds=fmtDate(dt),wd=dt.getDay();
+    if(r()<.12)continue;
+    let c,occ;
+    if(wd===0){c=r()<.5?'W':'K';occ='casual'}
+    else if(wd===6){c=r()<.4?'W':'K';occ=r()<.3?'dinner':'casual'}
+    else if(wd===1||wd===3){c='A';occ='work'}
+    else if(wd===2){c=r()<.5?'C':'D';occ='work'}
+    else if(wd===4){c=r()<.5?'B':'D';occ='university'}
+    else{c='E';occ='work'}
+    const slots=Object.assign({},combos[c]);slots.bag='s14';if(r()<.75)slots.acc='s15';
+    const w=r()<.4?'hot':(r()<.85?'warm':'rainy');
+    wearOutfit(slots,ds,occ,w,true);
+  }
+  save();
+}
+
+/* ---------- 5) أدوات مساعدة ---------- */
+const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
+const uid=()=>Math.random().toString(36).slice(2,9);
+const byId=id=>DB.items.find(i=>i.id===id);
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+function fmtDate(d){return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')}
+let TODAY='';
+function refreshToday(){TODAY=fmtDate(new Date())}
+function daysBetween(a,b){return Math.round((new Date(b+'T00:00')-new Date(a+'T00:00'))/864e5)}
+function ago(ds){const d=daysBetween(ds,TODAY);if(d<=0)return'today';if(d===1)return'yesterday';if(d<30)return d+' days ago';return Math.round(d/30)+' months ago'}
+function niceDate(ds){return new Date(ds+'T00:00').toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long'})}
+const fmtEGP=n=>n?n.toLocaleString()+' EGP':'—';
+function rng(seed){let t=seed+0x6D2B79F5;return()=>{t=Math.imul(t^t>>>15,t|1);t^=t+Math.imul(t^t>>>7,t|61);return((t^t>>>14)>>>0)/4294967296}}
+function hash(s){let h=9;for(const c of String(s))h=Math.imul(h^c.charCodeAt(0),387420489);return h>>>0}
+function wPick(arr,sf,r){const ws=arr.map(x=>Math.max(.01,sf(x)));const tot=ws.reduce((a,b)=>a+b,0);let t=r()*tot;for(let i=0;i<arr.length;i++){t-=ws[i];if(t<=0)return arr[i]}return arr[arr.length-1]}
+function toast(m){const t=document.createElement('div');t.className='toast';t.textContent=m;$('#toasts').append(t);requestAnimationFrame(()=>t.classList.add('on'));setTimeout(()=>{t.classList.remove('on');setTimeout(()=>t.remove(),350)},2600)}
+let _cb=null;
+function modal(html){$('#mroot').innerHTML=`<div class="mback" onclick="if(event.target===this)closeModal()"><div class="msheet">${html}</div></div>`;document.body.classList.add('lock')}
+function closeModal(){$('#mroot').innerHTML='';document.body.classList.remove('lock')}
+function askConfirm(title,msg,cb){_cb=cb;modal(`<h3>${title}</h3><p class="mut" style="font-size:13.5px">${msg}</p><div class="mrow"><button class="btn ghost" onclick="closeModal()">Cancel</button><button class="btn danger" onclick="runCb()">Yes, do it</button></div>`)}
+function runCb(){if(_cb)_cb();_cb=null;closeModal()}
+
+/* ---------- 6) منطق الألوان والتناسق ---------- */
+function famOf(c){for(const k in FAM)if(FAM[k].includes(c))return k;return null}
+function harmony(a,b){
+  if(a===b)return 1;
+  const na=NEUTRALS.has(a),nb=NEUTRALS.has(b);
+  if(na||nb)return 2;
+  return famOf(a)===famOf(b)?1:0;
+}
+function matchNote(a,b){
+  if(a===b)return 'tone-on-tone';
+  const h=harmony(a,b);
+  if(h===2)return NEUTRALS.has(a)&&NEUTRALS.has(b)?'both neutrals':'lets the colour speak';
+  if(h===1)return 'same colour family';
+  return 'clashing tones';
+}
+function palette(){
+  const cnt={};
+  DB.outfits.filter(o=>o.kind==='worn').forEach(o=>['top','bottom'].forEach(k=>{const it=byId(o.slots[k]);if(it)cnt[it.color]=(cnt[it.color]||0)+1}));
+  return Object.entries(cnt).sort((a,b)=>b[1]-a[1]);
+}
+function affinity(c){const p=palette();const tot=p.reduce((s,x)=>s+x[1],0)||1;const f=(p.find(x=>x[0]===c)||[0,0])[1];return f/tot*3}
+
+/* ---------- 7) مولّد الأطقم ---------- */
+function recentlyWorn(slots){
+  const n=DB.settings.noRepeat;if(!n)return null;
+  for(const o of DB.outfits){
+    if(o.kind!=='worn')continue;
+    const d=daysBetween(o.date,TODAY);if(d<0||d>n)continue;
+    if(['top','bottom','shoes'].every(k=>(o.slots[k]||'')===(slots[k]||'')))return d||1;
+  }
+  return null;
+}
+function buildReasons(slots,occ,weather,style){
+  const top=byId(slots.top),bottom=byId(slots.bottom),shoes=byId(slots.shoes);
+  const rs=[];
+  rs.push({hot:'Light, breathable pieces for a hot day.',warm:'Easy, comfortable layers for warm weather.',rainy:'Rain-friendly picks — nothing that spoils easily.',cold:'Warm layers to keep the cold out.'}[weather]);
+  if(bottom&&OCC[occ].styles.includes(top.style)&&OCC[occ].styles.includes(bottom.style))
+    rs.push(`Dressed for ${OCC[occ].label.toLowerCase()} — ${top.style.toLowerCase()} but still comfortable.`);
+  else if(style&&[top,bottom].some(x=>x&&x.style===style))
+    rs.push(`A ${style.toLowerCase()} mood, led by the ${top.name.toLowerCase()}.`);
+  if(bottom){
+    const h=harmony(top.color,bottom.color);
+    if(top.color===bottom.color)rs.push(`Tone-on-tone ${top.color.toLowerCase()} — quiet and pulled together.`);
+    else if(h>=2)rs.push(`${top.color} with ${bottom.color} — a pairing you can’t go wrong with.`);
+  }
+  const pal=palette().slice(0,3).map(x=>x[0]);
+  if(pal.includes(top.color)&&(bottom&&pal.includes(bottom.color)||pal.includes(shoes.color)))
+    rs.push('Close to the palette you wear most often.');
+  const favs=[top,bottom,shoes,byId(slots.bag),byId(slots.acc)].filter(x=>x&&x.favorite).length;
+  if(favs>=2)rs.push(`It brings ${favs} of your favourite pieces together.`);
+  return rs.slice(0,3);
+}
+function generateOutfit(o={}){
+  const occ=o.occasion||'casual',weather=o.weather||DB.settings.weather||'warm',style=o.style||null;
+  const r=o.rng||Math.random;
+  const avail=DB.items.filter(i=>i.status==='ok');
+  if(!avail.some(i=>i.cat==='tops'))return{error:'laundry'};
+  if(!avail.some(i=>i.cat==='bottoms')&&!avail.some(i=>i.sub==='Dress'))return{error:'laundry'};
+  if(!avail.some(i=>i.cat==='shoes'))return{error:'laundry'};
+  const wS=WEATHER[weather].seasons;
+  const fits=it=>it.seasons.some(s=>wS.includes(s));
+  const poolOf=cat=>{let l=avail.filter(i=>i.cat===cat&&fits(i));if(!l.length)l=avail.filter(i=>i.cat===cat);return l};
+  const styleScore=it=>{
+    let s=1;
+    if(style&&it.style===style)s+=2.4;
+    if(OCC[occ].styles.includes(it.style))s+=1.5;
+    if(it.favorite)s+=.8;
+    s+=affinity(it.color)*1.2;
+    if(it.lastWorn){const d=daysBetween(it.lastWorn,TODAY);if(d<=2)s-=1.4;else if(d>14)s+=.7}
+    if(!it.timesWorn)s+=.3;
+    return s;
+  };
+  const anchor=o.anchor&&avail.includes(o.anchor)?o.anchor:null;
+  let last=null,lastWarn=null;
+  for(let att=0;att<40;att++){
+    const tPool=poolOf('tops');
+    const top=anchor&&anchor.cat==='tops'?anchor:wPick(tPool,styleScore,r);
+    let bPool=poolOf('bottoms');
+    const bg=bPool.filter(x=>harmony(top.color,x.color)>0);if(bg.length)bPool=bg;
+    const bottom=top.sub==='Dress'?null:wPick(bPool,x=>styleScore(x)+3*harmony(top.color,x.color),r);
+    let sPool=poolOf('shoes');
+    const sg=sPool.filter(x=>harmony(bottom?bottom.color:top.color,x.color)>0);if(sg.length)sPool=sg;
+    const shoes=wPick(sPool,x=>styleScore(x)+2*harmony(bottom?bottom.color:top.color,x.color)+1.2*harmony(top.color,x.color),r);
+    const slots={top:top.id,bottom:bottom?bottom.id:null,shoes:shoes.id,bag:null,acc:null};
+    const accAvail=avail.filter(i=>i.cat==='accessories');
+    const bagPool=accAvail.filter(i=>i.sub==='Bag'&&fits(i));
+    if(bagPool.length&&r()<.8)slots.bag=wPick(bagPool,x=>styleScore(x)+1.5*(harmony(shoes.color,x.color)+harmony(top.color,x.color))/2,r).id;
+    const other=accAvail.filter(i=>i.sub!=='Bag'&&fits(i));
+    if(other.length&&r()<.55)slots.acc=wPick(other,styleScore,r).id;
+    const warn=recentlyWorn(slots);
+    if(!warn)return{slots,occasion:occ,weather,style,reasons:buildReasons(slots,occ,weather,style)};
+    last={slots,occasion:occ,weather,style,reasons:buildReasons(slots,occ,weather,style)};lastWarn=warn;
+  }
+  return Object.assign(last,{warn:lastWarn});
+}
+function wearOutfit(slots,date,occasion,weather,silent){
+  DB.outfits=DB.outfits.filter(x=>!((x.kind==='worn'||x.kind==='planned')&&x.date===date&&x.kind==='worn')&&!((x.kind==='planned')&&x.date===date));
+  DB.outfits.push({id:uid(),slots:Object.assign({},slots),date,occasion,weather,kind:'worn'});
+  Object.values(slots).forEach(id=>{const it=byId(id);if(it){it.timesWorn=(it.timesWorn||0)+1;it.lastWorn=date}});
+  save();
+  if(!silent)toast('Logged to your calendar ✓');
+}
+
+/* ---------- 8) مكوّنات عرض ---------- */
+function hdr(title,extra){
+  return `<div class="hdr"><button class="bk" onclick="go('home')">${ic('back',18)}</button><h1>${title}</h1>${extra||''}</div>`;
+}
+function lookBoard(slots,small){
+  const its=['top','bottom','shoes','bag','acc'].map(k=>byId(slots[k])).filter(Boolean);
+  return `<div class="look ${small?'sm':''}">${its.map((it,i)=>(i?`<span class="pls">+</span>`:'')+
+    `<div class="lk" onclick="itemDetail('${it.id}')">
+      <div class="v">${it.img?`<img src="${it.img}" alt="">`:sketchOf(it)}</div>
+      <div class="ln">${esc(it.name)}</div><div class="ls">${it.sub}</div>
+    </div>`).join('')}</div>`;
+}
+function whyBlock(reasons){
+  return `<div class="why"><h4>Why this outfit?</h4><ul>${reasons.map(r=>`<li>${r}</li>`).join('')}</ul></div>`;
+}
+function occWxChips(occ,weather,style){
+  let h=`<span class="chip on">${ic(OCC[occ].icon,15)} ${OCC[occ].label}</span><span class="chip on">${ic(WEATHER[weather].icon,15)} ${WEATHER[weather].label}</span>`;
+  if(style)h+=`<span class="chip on">${style}</span>`;
+  return h;
+}
+function pieceCard(it){
+  return `<div class="piece" onclick="itemDetail('${it.id}')">
+    <div class="ph">${it.img?`<img src="${it.img}" alt="">`:sketchOf(it)}
+      <span class="sdot ${it.status||'ok'}"></span>
+      ${it.favorite?`<span class="pf">${ic('heart',14,1)}</span>`:''}
+    </div>
+    <div class="pt">${esc(it.name)}</div>
+    <div class="ps">${it.sub} · ${it.color}</div>
+  </div>`;
+}
+function emptyBox(title,msg,btnLabel,btnAction){
+  return `<div class="card empty"><div class="et">${title}</div><p>${msg}</p><button class="btn primary" onclick="${btnAction}">${btnLabel}</button></div>`;
+}
+
+/* ---------- 9) Router ---------- */
+let NAV={screen:'home',params:{}};
+const RENDER={home:renderHome,closet:renderCloset,add:renderAdd,gen:renderGen,cal:renderCal,stats:renderStats,fav:renderFav,travel:renderTravel,lab:renderLab,set:renderSet};
+function go(screen,params={}){
+  refreshToday();
+  if(screen==='gen'&&!params.keep)resetG(params);
+  if(screen==='add')initAdd(params);
+  NAV={screen,params};
+  $$('.screen').forEach(s=>s.classList.remove('on'));
+  $('#scr-'+screen).classList.add('on');
+  RENDER[screen]&&RENDER[screen]();
+  $$('#bnav button').forEach(b=>b.classList.toggle('on',b.dataset.go===screen));
+  window.scrollTo({top:0});
+}
+
+/* ---------- 10) شاشة Home ---------- */
+let HOME_LOOK=null;
+function dailySuggestion(){
+  const r=rng(hash(TODAY+'|'+(DB.settings.dailySalt||0)+'|'+DB.settings.weather));
+  return generateOutfit({occasion:'casual',weather:DB.settings.weather,rng:r});
+}
+function renderHome(){
+  refreshToday();
+  const el=$('#scr-home');
+  const cats=['tops','bottoms','shoes','accessories'];
+  if(!DB.items.length){
+    el.innerHTML=`<div class="brandmark">${ic('hanger',26)}<span class="bt">What's in My Closet?</span></div>
+    ${emptyBox('Your closet is empty','Photograph your clothes once — and let the app do the rest.','Add your first piece',"go('add')")}
+    <div style="margin-top:14px;text-align:center"><button class="btn ghost" onclick="askConfirm('Load demo closet?','This fills the app with a sample wardrobe and 4 weeks of wear history.',()=>{seedDb();toast('Demo closet loaded ✨');go('home')})">Load a demo closet instead</button></div>`;
+    return;
+  }
+  const planned=DB.outfits.find(o=>o.kind==='planned'&&o.date===TODAY);
+  const worn=DB.outfits.find(o=>o.kind==='worn'&&o.date===TODAY);
+  let lookHtml='',lookTag='';
+  if(planned){
+    HOME_LOOK={slots:planned.slots,occasion:planned.occasion,weather:planned.weather};
+    lookTag='Your plan for today';
+    lookHtml=lookBoard(planned.slots);
+  }else if(worn){
+    HOME_LOOK=null;
+    lookTag='Worn today — already logged ✓';
+    lookHtml=lookBoard(worn.slots);
+  }else{
+    const sug=dailySuggestion();
+    if(sug.error){lookTag='Today’s suggestion';lookHtml=`<p class="mut" style="padding:18px;text-align:center;font-size:13.5px">Everything seems to be in the laundry!<br>Add pieces or do the laundry first. 🧺</p>`;}
+    else{
+      HOME_LOOK=sug;
+      lookTag='Today’s suggestion';
+      lookHtml=lookBoard(sug.slots)+whyBlock(sug.reasons);
+    }
+  }
+  const wx=DB.settings.weather;
+  el.innerHTML=`
+  <div class="brandmark">${ic('hanger',26)}<span class="bt">What's in My Closet?</span></div>
+  <div class="big">MY CLOSET</div>
+  <div class="dateL">${niceDate(TODAY)}</div>
+  <div class="counts">${cats.map(c=>`<div class="cnt"><b>${DB.items.filter(i=>i.cat===c).length}</b><span>${CATS[c].label}</span></div>`).join('')}</div>
+  <div class="wrow"><span class="wl">Weather today:</span>${Object.keys(WEATHER).map(k=>`<button class="chip wx ${k===wx?'on':''}" onclick="setWx('${k}')">${ic(WEATHER[k].icon,14)} ${WEATHER[k].label}</button>`).join('')}</div>
+  <div class="divider"><span>${lookTag}</span></div>
+  <div class="card">${lookHtml}
+    <div class="actrow">
+      ${HOME_LOOK?`<button class="btn primary" onclick="wearHome()">${ic('check',16)} WEAR THIS</button>
+      <button class="btn ghost" onclick="DB.settings.dailySalt=(DB.settings.dailySalt||0)+1;save();renderHome()">${ic('refresh',15)} Shuffle</button>`:
+      worn?`<button class="btn ghost" onclick="go('gen')">${ic('sparkle',15)} Create another look</button>`:''}
+    </div>
+  </div>
+  <button class="whoops" onclick="openSOS()">
+    <span class="wt">“I don’t know what to wear…”</span>
+    <span class="ss">Three quick questions — we’ll do the thinking.</span>
+  </button>
+  <div class="divider"><span>Everything else</span></div>
+  <div class="card morelist">
+    <button class="morerow" onclick="go('fav')"><span class="mi">${ic('heart',20)}</span><span class="mt">Favorite looks<small>Saved outfits & collections</small></span><span class="ar">${ic('fwd',16)}</span></button>
+    <button class="morerow" onclick="go('travel')"><span class="mi">${ic('bag',20)}</span><span class="mt">Travel mode<small>Packing list + an outfit per day</small></span><span class="ar">${ic('fwd',16)}</span></button>
+    <button class="morerow" onclick="go('lab')"><span class="mi">${ic('drop',20)}</span><span class="mt">Color lab<small>What goes with what in your closet</small></span><span class="ar">${ic('fwd',16)}</span></button>
+    <button class="morerow" onclick="go('set')"><span class="mi">${ic('gear',20)}</span><span class="mt">Settings<small>Repeat rules, data & install</small></span><span class="ar">${ic('fwd',16)}</span></button>
+  </div>`;
+}
+function setWx(k){DB.settings.weather=k;save();renderHome()}
+function wearHome(){
+  if(!HOME_LOOK)return;
+  wearOutfit(HOME_LOOK.slots,TODAY,HOME_LOOK.occasion,HOME_LOOK.weather);
+  go('home');
+}
+
+/* ---------- 11) زر الطوارئ 😭 ---------- */
+let SOS={step:0,occ:null,weather:null,mood:null};
+function openSOS(){SOS={step:0,occ:null,weather:null,mood:null};drawSOS()}
+function drawSOS(){
+  const titles=['Where are you going?','What’s the weather?','How do you want to feel?'];
+  let body='';
+  if(SOS.step===0)body=`<div class="optgrid g2">${Object.keys(OCC).map(k=>`<button class="opt ${SOS.occ===k?'on':''}" onclick="SOS.occ='${k}';sosNext()">${ic(OCC[k].icon,24)}${OCC[k].label}</button>`).join('')}</div>`;
+  if(SOS.step===1)body=`<div class="optgrid g2">${Object.keys(WEATHER).map(k=>`<button class="opt ${SOS.weather===k?'on':''}" onclick="SOS.weather='${k}';sosNext()">${ic(WEATHER[k].icon,24)}${WEATHER[k].label}</button>`).join('')}</div>`;
+  if(SOS.step===2)body=`<div class="optgrid">${MOODS.map((m,i)=>`<button class="opt ${SOS.mood===i?'on':''}" onclick="SOS.mood=${i};sosNext()" style="grid-column:span 2;text-align:left;padding-left:16px">${ic('sparkle',18)}${m[1]}</button>`).join('')}</div>`;
+  modal(`<h3 style="margin-bottom:2px">Don’t panic.</h3>
+  <p class="mut" style="font-size:13px;margin-bottom:14px">${titles[SOS.step]} · step ${SOS.step+1} of 3</p>
+  ${body}
+  ${SOS.step>0?`<div class="mrow"><button class="btn ghost" onclick="SOS.step--;drawSOS()">${ic('back',15)} Back</button></div>`:''}`);
+}
+function sosNext(){
+  if(SOS.step<2){SOS.step++;drawSOS();return}
+  closeModal();
+  const style=MOOD2STYLE[MOODS[SOS.mood][0]];
+  toast('On it — one look, coming up ✨');
+  go('gen',{occasion:SOS.occ,weather:SOS.weather,style,auto:true});
+}
+
+/* ---------- 12) شاشة Closet ---------- */
+let CST={cat:'all',sub:null,q:'',filter:'all'};
+function renderCloset(){
+  const p=NAV.params||{};
+  if(p.never){CST.filter='never';CST.cat='all';CST.sub=null}
+  if(p.cat){CST.cat=p.cat;CST.sub=null;CST.filter='all'}
+  const el=$('#scr-closet');
+  const subs=CST.cat!=='all'?CATS[CST.cat].subs:null;
+  el.innerHTML=`${hdr('My Closet',`<button class="bk" style="border-color:var(--acc);color:var(--acc)" onclick="go('add')">${ic('plus',18)}</button>`)}
+  <div class="srch">${ic('sparkle',16)}<input placeholder="Search your pieces…" value="${esc(CST.q)}" oninput="CST.q=this.value;renderClosetGrid()"></div>
+  <div class="chiprow">${[['all','All']].concat(Object.entries(CATS).map(([k,v])=>[k,v.label])).map(([k,l])=>`<button class="chip ${CST.cat===k?'on':''}" onclick="CST.cat='${k}';CST.sub=null;renderCloset()">${l}</button>`).join('')}</div>
+  ${subs?`<div class="chiprow subrow">${['',...subs].map(s=>`<button class="chip ${CST.sub===s?'on':''}" onclick="CST.sub=${s?`'${s}'`:'null'};renderCloset()">${s||'All '+CATS[CST.cat].label}</button>`).join('')}</div>`:''}
+  <div class="chiprow subrow">${[['all','Any status'],['ok','Clean'],['laundry','In laundry'],['drying','Drying'],['out','Set aside'],['fav','Favorites'],['never','Never worn']].map(([k,l])=>`<button class="chip ${CST.filter===k?'on':''}" onclick="CST.filter='${k}';renderCloset()">${l}</button>`).join('')}</div>
+  <div class="grid2" id="cgrid" style="margin-top:15px"></div>
+  <div style="margin-top:18px;text-align:center"><button class="btn primary block" onclick="go('add')">${ic('camera',16)} Add a piece</button></div>`;
+  renderClosetGrid();
+}
+function renderClosetGrid(){
+  const g=$('#cgrid');if(!g)return;
+  let list=DB.items.slice().sort((a,b)=>(b.created||0)-(a.created||0));
+  if(CST.cat!=='all')list=list.filter(i=>i.cat===CST.cat);
+  if(CST.sub)list=list.filter(i=>i.sub===CST.sub);
+  if(CST.filter==='fav')list=list.filter(i=>i.favorite);
+  if(CST.filter==='never')list=list.filter(i=>!i.timesWorn);
+  if(['ok','laundry','drying','out'].includes(CST.filter))list=list.filter(i=>(i.status||'ok')===CST.filter);
+  if(CST.q)list=list.filter(i=>(i.name+' '+i.sub+' '+i.color+' '+i.style).toLowerCase().includes(CST.q.toLowerCase()));
+  g.innerHTML=list.length?list.map(pieceCard).join(''):
+   `<div style="grid-column:1/-1">${emptyBox('Nothing here','No pieces match these filters.','Clear filters',"CST={cat:'all',sub:null,q:'',filter:'all'};renderCloset()")}</div>`;
+}
+
+/* ---------- 13) تفاصيل القطعة ---------- */
+function itemDetail(id){
+  const it=byId(id);if(!it)return;
+  const cpw=it.price&&it.timesWorn?Math.round(it.price/it.timesWorn)+' EGP / wear':null;
+  modal(`
+  <div style="display:flex;gap:14px;align-items:center">
+    <div style="width:86px;height:104px;background:var(--paper2);border:1px solid var(--line);border-radius:10px;display:flex;align-items:center;justify-content:center;overflow:hidden;flex:none">
+      ${it.img?`<img src="${it.img}" style="width:100%;height:100%;object-fit:cover" alt="">`:sketchOf(it)}
+    </div>
+    <div><h3 style="margin-bottom:5px">${esc(it.name)}</h3>
+      <div class="chiprow" style="gap:6px">
+        <span class="chip" style="pointer-events:none">${it.sub}</span>
+        <span class="chip" style="pointer-events:none">${it.style}</span>
+        ${it.favorite?`<span class="chip acc" style="pointer-events:none">${ic('heart',13,1)} Fav</span>`:''}
+      </div>
+      <div style="margin-top:9px;font-size:12.5px" class="mut">
+        <span style="display:inline-block;width:13px;height:13px;border-radius:50%;border:1px solid rgba(0,0,0,.2);vertical-align:-2px;margin-right:5px;background:${COLORS[it.color]}"></span>${it.color} · ${it.seasons.join(', ')}<br>
+        ${it.price?fmtEGP(it.price)+' · ':''}${it.timesWorn||0} wears
+      </div>
+    </div>
+  </div>
+  <div class="card" style="margin-top:14px;padding:11px 14px;display:flex;gap:10px;flex-wrap:wrap;font-size:13px">
+    <span><b class="serif" style="font-size:17px">${it.timesWorn||0}</b> <span class="mut">worn</span></span>
+    <span class="mut">·</span><span>${it.lastWorn?'last worn '+ago(it.lastWorn):'never worn'}</span>
+    ${cpw?`<span class="mut">·</span><span class="accT" style="font-weight:700">${cpw}</span>`:''}
+  </div>
+  <div class="lbl">Laundry status</div>
+  <div class="chiprow">${Object.entries(STATUS).map(([k,v])=>`<button class="chip ${(it.status||'ok')===k?'on':''}" onclick="setStatus('${id}','${k}')"><i style="width:9px;height:9px;border-radius:50%;background:${v.d}"></i>${v.l}</button>`).join('')}</div>
+  <div class="mrow">
+    <button class="btn" onclick="closeModal();go('lab',{sel:'${id}'})">${ic('drop',15)} Style it</button>
+    <button class="btn" onclick="editItem('${id}')">${ic('pencil',15)} Edit</button>
+    <button class="btn danger" onclick="delItem('${id}')">${ic('trash',15)}</button>
+  </div>`);
+}
+function setStatus(id,st){const it=byId(id);if(!it)return;it.status=st;save();itemDetail(id);toast(STATUS[st].l+' ✓')}
+function editItem(id){closeModal();go('add',{editId:id})}
+function delItem(id){
+  closeModal();
+  askConfirm('Delete this piece?','It will be removed from your closet and from saved looks. History entries will simply skip it.',()=>{
+    DB.items=DB.items.filter(i=>i.id!==id);save();toast('Piece deleted');
+    if($('#scr-closet').classList.contains('on'))renderCloset();else go('home');
+  });
+}
+
+/* ---------- 14) إضافة / تعديل قطعة ---------- */
+let A={};
+function initAdd(params){
+  const e=params.editId?byId(params.editId):null;
+  A=e?{id:e.id,img:e.img,cat:e.cat,sub:e.sub,color:e.color,style:e.style,seasons:[...e.seasons],name:e.name,price:e.price,status:e.status||'ok',favorite:!!e.favorite,detected:null}
+    :{id:null,img:null,cat:'tops',sub:'T-Shirt',color:'White',style:'Casual',seasons:['Summer','Spring','Autumn','Winter'],name:'',price:null,status:'ok',favorite:false,detected:null};
+}
+function renderAdd(){
+  const el=$('#scr-add');
+  const subs=CATS[A.cat].subs;
+  el.innerHTML=`${hdr(A.id?'Edit piece':'Add a piece')}
+  <div class="cam">
+    <div class="cv" id="camv">${A.img?`<img src="${A.img}" alt="">`:sketchOf({sub:A.sub,color:A.color})}</div>
+    <div class="chiprow" style="justify-content:center">
+      <button class="btn primary" onclick="$('#fpick').click()">${ic('camera',16)} ${A.img?'Change photo':'Take / choose photo'}</button>
+      ${A.img?`<button class="btn ghost" onclick="A.img=null;renderAdd()">${ic('x',14)} Remove</button>`:''}
+    </div>
+    ${A.detected?`<div class="detected">${ic('check',15)} We detected the colour: <span class="sw" style="background:${COLORS[A.detected]||'#fff'}"></span><b>${A.detected}</b> — tap a swatch to change it.</div>`:`<p class="mut" style="font-size:12px;margin-top:11px">No photo? We’ll sketch the piece for you instead.</p>`}
+  </div>
+  <div class="lbl">Name</div>
+  <div class="frow"><input type="text" placeholder="${esc(A.color+' '+A.sub)}" value="${esc(A.name||'')}" oninput="A.name=this.value"></div>
+  <div class="lbl">Category</div>
+  <div class="chiprow">${Object.entries(CATS).map(([k,v])=>`<button class="chip ${A.cat===k?'on':''}" onclick="A.cat='${k}';A.sub='${v.subs[0]}';renderAdd()">${v.label}</button>`).join('')}</div>
+  <div class="lbl">Type</div>
+  <div class="chiprow">${subs.map(s=>`<button class="chip ${A.sub===s?'on':''}" onclick="A.sub='${s}';renderAdd()">${s}</button>`).join('')}</div>
+  <div class="lbl">Colour</div>
+  <div class="swgrid">${Object.entries(COLORS).map(([n,h])=>`<button class="sw ${A.color===n?'on':''}" title="${n}" style="background:${h}" onclick="A.color='${n}';renderAdd()"></button>`).join('')}</div>
+  <div class="lbl">Style</div>
+  <div class="chiprow">${STYLES.map(s=>`<button class="chip ${A.style===s?'on':''}" onclick="A.style='${s}';renderAdd()">${s}</button>`).join('')}</div>
+  <div class="lbl">Seasons</div>
+  <div class="chiprow">${SEASONS.map(s=>`<button class="chip ${A.seasons.includes(s)?'on':''}" onclick="toggleSeason('${s}')">${s}</button>`).join('')}</div>
+  <div class="lbl">Price (EGP) — optional, for cost-per-wear</div>
+  <div class="frow"><input type="number" inputmode="numeric" placeholder="e.g. 450" value="${A.price||''}" oninput="A.price=this.value?+this.value:null"></div>
+  <div class="lbl">Status</div>
+  <div class="chiprow">${Object.entries(STATUS).map(([k,v])=>`<button class="chip ${A.status===k?'on':''}" onclick="A.status='${k}';renderAdd()">${v.l}</button>`).join('')}</div>
+  <div class="lbl">Favourite</div>
+  <button class="favtoggle ${A.favorite?'on':''}" onclick="A.favorite=!A.favorite;renderAdd()">${ic('heart',16,A.favorite?1:0)} Mark as favourite <span class="fh">${ic('heart',18,A.favorite?1:0)}</span></button>
+  <div class="mrow">
+    ${A.id?`<button class="btn ghost" onclick="go('closet')">Cancel</button><button class="btn primary" onclick="saveItem()">Save changes</button>`
+    :`<button class="btn primary block" onclick="saveItem()">${ic('check',16)} Add to my closet</button>`}
+  </div>`;
+}
+function toggleSeason(s){A.seasons=A.seasons.includes(s)?A.seasons.filter(x=>x!==s):[...A.seasons,s];renderAdd()}
+function saveItem(){
+  if(!A.seasons.length){toast('Pick at least one season');return}
+  const name=(A.name||'').trim()||`${A.color} ${A.sub}`;
+  if(A.id){
+    const it=byId(A.id);Object.assign(it,{name,cat:A.cat,sub:A.sub,color:A.color,style:A.style,seasons:[...A.seasons],price:A.price,status:A.status,favorite:A.favorite,img:A.img});
+    save();toast('Updated ✓');go('closet');
+  }else{
+    DB.items.unshift({id:uid(),name,cat:A.cat,sub:A.sub,color:A.color,style:A.style,seasons:[...A.seasons],price:A.price,timesWorn:0,lastWorn:null,status:A.status,favorite:A.favorite,img:A.img,created:Date.now()});
+    save();toast('Added to your closet 🎉');go('closet');
+  }
+}
+
+/* ---------- 15) معالجة الصورة + كشف اللون ---------- */
+function hex2rgb(h){return[parseInt(h.slice(1,3),16),parseInt(h.slice(3,5),16),parseInt(h.slice(5,7),16)]}
+function nearestColor(r,g,b){
+  let best=null,bd=1e9;
+  for(const[n,h]of Object.entries(COLORS)){const[cr,cg,cb]=hex2rgb(h);const d=(cr-r)**2+(cg-g)**2+(cb-b)**2;if(d<bd){bd=d;best=n}}
+  return best;
+}
+ $('#fpick').addEventListener('change',e=>{
+  const f=e.target.files[0];if(!f)return;
+  const rd=new FileReader();
+  rd.onload=()=>{
+    const im=new Image();
+    im.onload=()=>{
+      const M=420,s=Math.min(1,M/Math.max(im.width,im.height));
+      const c=document.createElement('canvas');c.width=Math.max(1,Math.round(im.width*s));c.height=Math.max(1,Math.round(im.height*s));
+      c.getContext('2d').drawImage(im,0,0,c.width,c.height);
+      A.img=c.toDataURL('image/jpeg',.72);
+      const sc=document.createElement('canvas');sc.width=sc.height=30;
+      sc.getContext('2d').drawImage(im,0,0,30,30);
+      const d=sc.getContext('2d').getImageData(0,0,30,30).data;
+      let r=0,g=0,b=0,n=0;for(let i=0;i<d.length;i+=4){r+=d[i];g+=d[i+1];b+=d[i+2];n++}
+      A.detected=nearestColor(Math.round(r/n),Math.round(g/n),Math.round(b/n));
+      A.color=A.detected;
+      renderAdd();toast('Colour detected: '+A.detected);
+    };
+    im.src=rd.result;
+  };
+  rd.readAsDataURL(f);
+  e.target.value='';
+});
+
+/* ---------- 16) مولّد الأطقم ---------- */
+let G={};
+function resetG(params){
+  G={step:0,occasion:params.occasion||null,weather:params.weather||null,style:params.style===undefined?null:params.style,anchor:params.sel?byId(params.sel):null,result:null,auto:!!params.auto};
+  if(G.auto&&G.occasion&&G.weather)G.step=3;
+}
+function renderGen(){
+  const el=$('#scr-gen');
+  let html=hdr('Outfit generator');
+  if(G.anchor)html+=`<div class="anchchip">${ic('drop',15)} Building around: ${esc(G.anchor.name)}<button onclick="G.anchor=null;renderGen()" style="margin-left:2px;color:var(--mut)">${ic('x',14)}</button></div>`;
+  if(G.step===3||G.result){G.result=generateOutfit({occasion:G.occasion,weather:G.weather,style:G.style,anchor:G.anchor});html+=resultView();}
+  else html+=wizardView();
+  el.innerHTML=html;
+}
+function wizardView(){
+  const steps=['Where','Weather','Style'];
+  const s=G.step;
+  let body='';
+  if(s===0)body=`<div class="qtitle">Where are you going?</div><div class="qsub">So the look fits the moment.</div>
+    <div class="optgrid g2">${Object.keys(OCC).map(k=>`<button class="opt ${G.occasion===k?'on':''}" onclick="setG('occasion','${k}')">${ic(OCC[k].icon,24)}${OCC[k].label}</button>`).join('')}</div>`;
+  if(s===1)body=`<div class="qtitle">What's the weather?</div><div class="qsub">We only suggest season-appropriate pieces.</div>
+    <div class="optgrid g2">${Object.keys(WEATHER).map(k=>`<button class="opt ${G.weather===k?'on':''}" onclick="setG('weather','${k}')">${ic(WEATHER[k].icon,24)}${WEATHER[k].label}</button>`).join('')}</div>`;
+  if(s===2)body=`<div class="qtitle">Pick a style</div><div class="qsub">Or let us surprise you.</div>
+    <div class="optgrid g3">${STYLES.map(t=>`<button class="opt ${G.style===t?'on':''}" onclick="setG('style','${t}')">${t}</button>`).join('')}</div>
+    <div class="mrow"><button class="btn primary block" onclick="G.step=3;renderGen()">${ic('sparkle',17)} GENERATE</button>
+    <button class="btn ghost block" onclick="G.style=null;G.step=3;renderGen()">${ic('compass',15)} Surprise me</button></div>`;
+  return `<div class="steps">${steps.map((t,i)=>`<div class="stp ${i===s?'on':i<s?'done':''}"><b>${i<s?'✓':i+1}</b>${t}</div>`).join('')}</div>${body}
+  ${s>0?`<button class="btn ghost" onclick="G.step--;renderGen()" style="margin-top:14px">${ic('back',15)} Back</button>`:''}
+  ${!DB.items.length?emptyBox('Your closet is empty','Add a few pieces first — then we can build looks.','Add a piece',"go('add')"):''}`;
+}
+function setG(k,v){G[k]=v;if(G.step<2)G.step++;renderGen()}
+function resultView(){
+  const r=G.result;
+  if(r.error)return `<div class="card errbox"><div class="empty"><div class="et">Everything's in the laundry! 🧺</div><p>None of your ${r.error==='laundry'?'pieces':'seasonal pieces'} are clean and available right now.</p>
+    <button class="btn primary" onclick="markLaundryDone()">${ic('check',16)} Laundry is done — set all clean</button></div></div>`;
+  return `<div class="reschips">${occWxChips(r.occasion,r.weather,r.style)}
+    <button class="chip" onclick="G.step=0;G.result=null;renderGen()">${ic('pencil',13)} Change</button></div>
+  <div class="card">
+    <div class="divider" style="margin:14px 16px 0"><span>Your outfit</span></div>
+    ${lookBoard(r.slots)}
+    ${whyBlock(r.reasons)}
+    ${r.warn?`<div class="warnbox">${ic('refresh',17)}<span>You wore this exact outfit ${r.warn} day${r.warn>1?'s':''} ago — your repeat rule is ${DB.settings.noRepeat} days. Try another?</span></div>`:''}
+    <div class="actrow">
+      <button class="btn primary" onclick="wearGen()">${ic('check',15)} Wear today</button>
+      <button class="btn" onclick="openSave()">${ic('heart',15)} Save look</button>
+      <button class="btn ghost" onclick="renderGen()">${ic('refresh',15)} Try another</button>
+    </div>
+  </div>`;
+}
+function wearGen(){
+  const r=G.result;if(!r||r.error)return;
+  wearOutfit(r.slots,TODAY,r.occasion,r.weather);
+  go('home');
+}
+function openSave(){
+  const r=G.result;if(!r||r.error)return;
+  window._saveCol='Unsorted';
+  modal(`<h3>Save this look</h3><p class="mut" style="font-size:13px">Pick a collection for it:</p>
+  <div class="chiprow" style="margin-top:10px">${COLLECTIONS.map(c=>`<button class="chip ${c==='Unsorted'?'on':''}" id="col-${c.replace(/\s/g,'')}" onclick="pickCol('${c}')">${c}</button>`).join('')}</div>
+  <div class="mrow"><button class="btn ghost" onclick="closeModal()">Cancel</button><button class="btn accent" onclick="doSave()">${ic('heart',15)} Save look</button></div>`);
+}
+function pickCol(c){
+  window._saveCol=c;
+  $$('#mroot .chip').forEach(x=>x.classList.remove('on'));
+  $('#col-'+c.replace(/\s/g,'')).classList.add('on');
+}
+function doSave(){
+  const r=G.result;
+  DB.outfits.push({id:uid(),slots:Object.assign({},r.slots),date:null,occasion:r.occasion,weather:r.weather,kind:'saved',collection:window._saveCol||'Unsorted'});
+  save();closeModal();toast('Saved to favorites ❤');
+}
+
+/* ---------- 17) التقويم والتخطيط ---------- */
+let CAL={off:0},DMD=null;
+function renderCal(){
+  const el=$('#scr-cal');
+  const base=new Date();base.setDate(1);base.setMonth(base.getMonth()+CAL.off);
+  const y=base.getFullYear(),m=base.getMonth();
+  const monthName=base.toLocaleDateString('en-GB',{month:'long',year:'numeric'});
+  const first=new Date(y,m,1).getDay();const lead=(first+6)%7;
+  const dim=new Date(y,m+1,0).getDate();
+  let cells='';
+  for(let i=0;i<lead;i++)cells+='<div class="day off"></div>';
+  for(let d=1;d<=dim;d++){
+    const ds=y+'-'+String(m+1).padStart(2,'0')+'-'+String(d).padStart(2,'0');
+    const worn=DB.outfits.filter(o=>o.date===ds&&o.kind==='worn').pop();
+    const plan=DB.outfits.find(o=>o.date===ds&&o.kind==='planned');
+    const show=worn||plan;
+    let dots='';
+    if(show){
+      const ks=['top','bottom','shoes'].map(k=>byId(show.slots[k])).filter(Boolean);
+      dots=`<div class="dots">${ks.map(i=>`<i style="background:${COLORS[i.color]}"></i>`).join('')}</div>`;
+    }
+    cells+=`<div class="day ${ds===TODAY?'today':''} ${ds>TODAY&&plan?'plan':''} ${show?'':'off2'}" onclick="openDay('${ds}')">
+      <span class="dn">${d}</span>${dots}${!show&&ds>TODAY?'<span class="pin"></span>':''}</div>`;
+  }
+  el.innerHTML=`${hdr('Outfit calendar')}
+  <div class="calhead">
+    <button onclick="CAL.off--;renderCal()">${ic('back',16)}</button>
+    <h2>${monthName}</h2>
+    <button onclick="CAL.off++;renderCal()">${ic('fwd',16)}</button>
+  </div>
+  <div class="card" style="padding:12px 8px 10px">
+    <div class="dow"><span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span><span>Sun</span></div>
+    <div class="dgrid">${cells}</div>
+  </div>
+  <div class="legend"><span><i style="background:var(--good)"></i>worn</span><span><i style="background:var(--acc)"></i>planned</span><span>tap any future day to plan it</span></div>`;
+}
+function openDay(ds){DMD={ds,occ:'work',weather:DB.settings.weather||'warm',res:null};drawDay()}
+function drawDay(){
+  const d=DMD;const list=DB.outfits.filter(o=>o.date===d.ds);
+  const future=d.ds>TODAY,isToday=d.ds===TODAY;
+  let body='';
+  if(list.length){
+    body=list.map(o=>{
+      const isW=o.kind==='worn';
+      return `<div class="card" style="margin-bottom:13px">
+        <div style="padding:12px 14px 0;display:flex;align-items:center;gap:8px">
+          <span class="chip ${isW?'':'acc'}" style="pointer-events:none;font-size:11px">${isW?'Worn':'Planned'}</span>
+          <span class="chip" style="pointer-events:none;font-size:11px">${ic(OCC[o.occasion].icon,13)} ${OCC[o.occasion].label}</span>
+          <span class="chip" style="pointer-events:none;font-size:11px">${ic(WEATHER[o.weather].icon,13)} ${WEATHER[o.weather].label}</span>
+        </div>
+        ${lookBoard(o.slots,true)}
+        ${!isW&&isToday?`<div class="actrow"><button class="btn primary" onclick="wearPlanned('${o.id}')">${ic('check',15)} Wear this today</button></div>`:''}
+        ${!isW&&future?`<div class="actrow"><button class="btn ghost" onclick="rerollPlan('${o.id}')">${ic('refresh',14)} Suggest another</button><button class="btn danger" onclick="dropPlan('${o.id}')">${ic('trash',14)} Remove</button></div>`:''}
+      </div>`;
+    }).join('');
+  }else if(!future){
+    body=`<p class="mut" style="text-align:center;padding:16px 6px;font-size:13.5px">Nothing logged for this day.</p>`;
+  }
+  if(future||(!list.length&&!future)){
+    body+=`<div class="divider"><span>Plan this day</span></div>
+    <div class="lbl" style="margin-top:4px">Where will you be?</div>
+    <div class="chiprow">${Object.keys(OCC).map(k=>`<button class="chip ${d.occ===k?'on':''}" onclick="DMD.occ='${k}';DMD.res=null;drawDay()">${OCC[k].label}</button>`).join('')}</div>
+    <div class="lbl">Weather</div>
+    <div class="chiprow">${Object.keys(WEATHER).map(k=>`<button class="chip ${d.weather===k?'on':''}" onclick="DMD.weather='${k}';DMD.res=null;drawDay()">${WEATHER[k].label}</button>`).join('')}</div>
+    ${d.res&&!d.res.error?`<div class="card" style="margin-top:15px">${lookBoard(d.res.slots,true)}
+      <div class="actrow"><button class="btn primary" onclick="savePlan()">Save this plan</button><button class="btn ghost" onclick="DMD.res=generateOutfit({occasion:DMD.occ,weather:DMD.weather});drawDay()">${ic('refresh',14)}</button></div></div>`
+    :d.res&&d.res.error?`<p class="mut" style="font-size:13px;margin-top:10px">Not enough clean pieces for this — try different settings.</p>`
+    :`<button class="btn primary block" style="margin-top:15px" onclick="DMD.res=generateOutfit({occasion:DMD.occ,weather:DMD.weather});drawDay()">${ic('sparkle',16)} Suggest an outfit</button>`}`;
+  }
+  modal(`<h3>${niceDate(d.ds)}</h3>${body}`);
+}
+function savePlan(){
+  const d=DMD;if(!d.res)return;
+  DB.outfits=DB.outfits.filter(o=>!(o.kind==='planned'&&o.date===d.ds));
+  DB.outfits.push({id:uid(),slots:d.res.slots,date:d.ds,occasion:d.occ,weather:d.weather,kind:'planned'});
+  save();closeModal();renderCal();toast('Planned ✓ — your outfit will be ready');
+}
+function wearPlanned(id){
+  const o=DB.outfits.find(x=>x.id===id);if(!o)return;
+  wearOutfit(o.slots,TODAY,o.occasion,o.weather);
+  closeModal();go('home');
+}
+function rerollPlan(id){
+  const o=DB.outfits.find(x=>x.id===id);if(!o)return;
+  const res=generateOutfit({occasion:o.occasion,weather:o.weather});
+  if(!res.error){o.slots=res.slots;save();drawDay();toast('New suggestion ready')}
+  else toast('Not enough clean pieces');
+}
+function dropPlan(id){DB.outfits=DB.outfits.filter(x=>x.id!==id);save();drawDay();renderCal()}
+
+/* ---------- 18) الإحصائيات ---------- */
+function renderStats(){
+  const el=$('#scr-stats');
+  if(!DB.items.length){el.innerHTML=hdr('Statistics')+emptyBox('No data yet','Add pieces and log outfits — the numbers will appear here.','Add a piece',"go('add')");return}
+  const total=DB.items.length;
+  const used=DB.items.filter(i=>i.timesWorn>0).length;
+  const eff=Math.round(used/total*100);
+  const freq=DB.items.filter(i=>i.timesWorn>=5).length;
+  const rare=DB.items.filter(i=>i.timesWorn>=1&&i.timesWorn<5).length;
+  const never=DB.items.filter(i=>!i.timesWorn).length;
+  const p1=total?Math.round(freq/total*100):0,p2=total?Math.round(rare/total*100):0,p3=100-p1-p2;
+  const most=DB.items.slice().sort((a,b)=>b.timesWorn-a.timesWorn).slice(0,5).filter(i=>i.timesWorn>0);
+  const least=DB.items.slice().sort((a,b)=>(a.timesWorn||0)-(b.timesWorn||0)).slice(0,4);
+  const cpw=DB.items.filter(i=>i.price&&i.timesWorn>0).sort((a,b)=>a.price/a.timesWorn-b.price/b.timesWorn).slice(0,6);
+  const pal=palette().slice(0,5);
+  const ringP=eff*2.45;
+  el.innerHTML=`${hdr('Wardrobe statistics')}
+  <div class="card effcard">
+    <div class="ring">
+      <svg width="104" height="104"><circle cx="52" cy="52" r="45" fill="none" stroke="var(--line)" stroke-width="8"/><circle cx="52" cy="52" r="45" fill="none" stroke="var(--acc)" stroke-width="8" stroke-linecap="round" stroke-dasharray="${ringP} 999"/></svg>
+      <div class="rv"><b>${eff}%</b><span>CLOSET<br>EFFICIENCY</span></div>
+    </div>
+    <p><b>${used} of ${total}</b> pieces are in rotation.<br><span class="mut" style="font-size:12.5px">Wear the sleeping ones — every wear makes them cheaper.</span></p>
+  </div>
+  ${pal.length?`<div class="lbl">Your palette this month</div>
+  <div class="card" style="padding:13px 14px"><div class="palrow">${pal.map(([c,n])=>`<span class="palsw" title="${c} (${n} wears)" style="background:${COLORS[c]}"></span>`).join('')}<span style="font-size:12.5px" class="mut">${pal.map(x=>x[0]).join(' · ')}</span></div></div>`:''}
+  <div class="lbl">Most worn</div>
+  <div class="card">${most.map((it,i)=>`<div class="rank" onclick="itemDetail('${it.id}')">
+    <span class="med">${i+1}</span>
+    <span class="rthumb">${it.img?`<img src="${it.img}" style="width:100%;height:100%;object-fit:cover;border-radius:6px">`:sketchOf(it)}</span>
+    <span class="rt">${esc(it.name)}<small>${it.sub} · last worn ${it.lastWorn?ago(it.lastWorn):'—'}</small></span>
+    <span class="rn">${it.timesWorn}×</span></div>`).join('')||'<p class="mut" style="padding:14px;font-size:13px">Log some outfits first.</p>'}</div>
+  <div class="lbl">Least worn</div>
+  <div class="card">${least.map(it=>`<div class="rank" onclick="itemDetail('${it.id}')">
+    <span class="rthumb">${it.img?`<img src="${it.img}" style="width:100%;height:100%;object-fit:cover;border-radius:6px">`:sketchOf(it)}</span>
+    <span class="rt">${esc(it.name)}<small>${it.timesWorn?it.timesWorn+' wears':'never worn'}</small></span>
+    <span class="rn mut" style="font-size:13px">${it.timesWorn}×</span></div>`).join('')}</div>
+  <div class="lbl">Closet health</div>
+  <div class="card" style="padding:15px">
+    <div class="hbar"><i style="width:${p1}%;background:var(--good)"></i><i style="width:${p2}%;background:#D8A23A"></i><i style="width:${p3}%;background:var(--acc)"></i></div>
+    <div class="hleg"><span><i style="background:var(--good)"></i>Frequently used ${p1}%</span><span><i style="background:#D8A23A"></i>Rarely ${p2}%</span><span><i style="background:var(--acc)"></i>Never ${p3}%</span></div>
+    ${never?`<p style="font-size:13px;margin-top:12px">You own <b>${never} piece${never>1?'s':''}</b> you've never worn — maybe today's the day?</p>
+    <button class="btn ghost" style="margin-top:10px" onclick="go('closet',{never:1})">See them</button>`:''}
+  </div>
+  ${cpw.length?`<div class="lbl">Cost per wear — best value</div>
+  <div class="card">${cpw.map(it=>`<div class="rank" onclick="itemDetail('${it.id}')">
+    <span class="rthumb">${it.img?`<img src="${it.img}" style="width:100%;height:100%;object-fit:cover;border-radius:6px">`:sketchOf(it)}</span>
+    <span class="rt">${esc(it.name)}<small>${fmtEGP(it.price)} · ${it.timesWorn} wears</small></span>
+    <span class="rn accT">${Math.round(it.price/it.timesWorn)}<small class="mut" style="font-family:Karla;font-size:10px"> EGP/wear</small></span></div>`).join('')}</div>`:''}`;
+}
+
+/* ---------- 19) المفضلة ---------- */
+let FAV={col:null};
+function renderFav(){
+  const el=$('#scr-fav');
+  const saved=DB.outfits.filter(o=>o.kind==='saved');
+  if(!saved.length){el.innerHTML=hdr('Favorite looks')+emptyBox('No saved looks yet','When you love a generated outfit, hit “Save look” and it lives here.','Create an outfit',"go('gen')");return}
+  const cols=[...new Set(saved.map(o=>o.collection||'Unsorted'))];
+  const list=FAV.col?saved.filter(o=>(o.collection||'Unsorted')===FAV.col):saved;
+  el.innerHTML=`${hdr('Favorite looks')}
+  <div class="chiprow">${[['null','All']].concat(cols.map(c=>[c,c])).map(([k,l])=>`<button class="chip ${String(FAV.col)===k?'on':''}" onclick="FAV.col=${k==='null'?'null':`'${c=${l}','${l}'`};renderFav()">${l}</button>`).join('')}</div>
+  ${list.map(o=>`<div class="card favrow">
+    <div class="fmeta"><span class="chip acc" style="pointer-events:none;font-size:11px">${o.collection||'Unsorted'}</span>
+      <span>${ic(OCC[o.occasion].icon,14)} ${OCC[o.occasion].label}</span>
+      <span>${ic(WEATHER[o.weather].icon,14)} ${WEATHER[o.weather].label}</span></div>
+    ${lookBoard(o.slots,true)}
+    <div class="actrow" style="padding:0 2px">
+      <button class="btn primary" onclick="wearFav('${o.id}')">${ic('check',14)} Wear again today</button>
+      <button class="btn danger" onclick="dropFav('${o.id}')">${ic('trash',14)}</button>
+    </div></div>`).join('')}`;
+}
+function wearFav(id){
+  const o=DB.outfits.find(x=>x.id===id);if(!o)return;
+  wearOutfit(o.slots,TODAY,o.occasion,o.weather);
+  go('home');
+}
+function dropFav(id){DB.outfits=DB.outfits.filter(x=>x.id!==id);save();renderFav();toast('Removed')}
+
+/* ---------- 20) Travel Mode ---------- */
+let TR={days:5,weather:'warm',pack:null,looks:null};
+function renderTravel(){
+  const el=$('#scr-travel');
+  const wS=WEATHER[TR.weather].seasons;
+  const fits=it=>it.seasons.some(s=>wS.includes(s));
+  let html=`${hdr('Travel mode')}
+  <div class="stepper">
+    <button onclick="TR.days=Math.max(1,TR.days-1);TR.pack=TR.looks=null;renderTravel()">−</button>
+    <div><b>${TR.days}</b><span>days</span></div>
+    <button onclick="TR.days=Math.min(14,TR.days+1);TR.pack=TR.looks=null;renderTravel()">+</button>
+  </div>
+  <div class="lbl">Weather on the trip</div>
+  <div class="chiprow">${Object.keys(WEATHER).map(k=>`<button class="chip ${TR.weather===k?'on':''}" onclick="TR.weather='${k}';TR.pack=TR.looks=null;renderTravel()">${ic(WEATHER[k].icon,14)} ${WEATHER[k].label}</button>`).join('')}</div>`;
+  if(!TR.pack){
+    html+=`<button class="btn primary block" style="margin-top:18px" onclick="buildPack()">${ic('bag',16)} Build my packing list</button>`;
+  }else{
+    const P=TR.pack;
+    html+=`<div class="lbl">Packing list — ${TR.days} days, ${WEATHER[TR.weather].label.toLowerCase()}</div>
+    <div class="card">
+      ${[['top',P.tops.length,'Tops',P.tops],['bottom',P.bottoms.length,'Bottoms',P.bottoms],['shoe',P.shoes.length,'Shoes',P.shoes],['acc',P.accs.length,'Accessories',P.accs]].map(([k,n,l,arr])=>`
+      <div class="packrow"><span class="pk">${n}×</span>
+        <span class="pt2">${l}<small>${arr.map(i=>esc(i.name)).join(' · ')}</small></span></div>`).join('')}
+    </div>
+    ${!TR.looks?`<button class="btn primary block" style="margin-top:16px" onclick="buildTripLooks()">${ic('sparkle',16)} Make ${TR.days} outfits</button>`
+    :`<div class="lbl">One look per day</div>
+      ${TR.looks.map((sl,i)=>`<div class="card favrow"><div class="fmeta"><b class="serif" style="font-size:16px">Day ${i+1}</b></div>${lookBoard(sl,true)}</div>`).join('')}
+      <button class="btn accent block" style="margin-top:6px" onclick="saveTrip()">${ic('cal',16)} Save as plans (from tomorrow)</button>`}`;
+  }
+  if(!DB.items.length)html+=emptyBox('Nothing to pack yet','Add your clothes first, then come back.','Add a piece',"go('add')");
+  el.innerHTML=html;
+}
+function buildPack(){
+  const wS=WEATHER[TR.weather].seasons;
+  const fits=it=>it.seasons.some(s=>wS.includes(s));
+  const av=DB.items.filter(i=>i.status==='ok');
+  const top=av.filter(i=>i.cat==='tops'&&fits(i));
+  const bot=av.filter(i=>i.cat==='bottoms'&&fits(i));
+  const sho=av.filter(i=>i.cat==='shoes'&&fits(i));
+  const acc=av.filter(i=>i.cat==='accessories'&&fits(i));
+  if(!top.length||!sho.length){toast('Not enough clean, season-fitting pieces');return}
+  const nT=Math.min(TR.days,top.length);
+  const nB=Math.min(Math.ceil(TR.days/2),bot.length||1);
+  const uniq=list=>{const seen=new Set(),out=[];for(const i of list){const k=i.cat+i.color;if(!seen.has(k)){seen.add(k);out.push(i)}}return out.length>1?out:list};
+  TR.pack={tops:uniq(top).slice(0,nT),bottoms:(bot.length?uniq(bot):[]).slice(0,nB),shoes:uniq(sho).slice(0,2),accs:acc.slice(0,2)};
+  TR.looks=null;renderTravel();
+}
+function buildTripLooks(){
+  const P=TR.pack;TR.looks=[];
+  for(let d=0;d<TR.days;d++){
+    const top=P.tops[d%P.tops.length];
+    const bottom=top.sub==='Dress'||!P.bottoms.length?null:P.bottoms[Math.floor(d/2)%P.bottoms.length];
+    const shoes=P.shoes[d%P.shoes.length];
+    const slots={top:top.id,bottom:bottom?bottom.id:null,shoes:shoes.id,bag:P.accs.find(a=>a.sub==='Bag')?.id||null,acc:P.accs.find(a=>a.sub!=='Bag')?.id||null};
+    TR.looks.push(slots);
+  }
+  renderTravel();
+}
+function saveTrip(){
+  const start=new Date();start.setDate(start.getDate()+1);
+  TR.looks.forEach((slots,i)=>{
+    const d=new Date(start);d.setDate(start.getDate()+i);
+    DB.outfits.push({id:uid(),slots,date:fmtDate(d),occasion:'travel',weather:TR.weather,kind:'planned'});
+  });
+  save();toast(TR.days+' outfits planned ✓ See the calendar');go('cal');
+}
+
+/* ---------- 21) Color Lab ---------- */
+let LAB={sel:null,cat:'all'};
+function renderLab(){
+  const el=$('#scr-lab');
+  let html=hdr('Color lab');
+  if(!LAB.sel){
+    html+=`<div class="qtitle" style="font-size:22px">Pick a piece</div>
+    <div class="qsub">We'll show what in your closet goes with it — and what doesn't.</div>
+    <div class="chiprow" style="margin-bottom:14px">${[['all','All']].concat(Object.entries(CATS).map(([k,v])=>[k,v.label])).map(([k,l])=>`<button class="chip ${LAB.cat===k?'on':''}" onclick="LAB.cat='${k}';renderLab()">${l}</button>`).join('')}</div>
+    <div class="card">${DB.items.filter(i=>LAB.cat==='all'||i.cat===LAB.cat).map(it=>`
+      <div class="matchrow" style="cursor:pointer" onclick="LAB.sel='${it.id}';renderLab()">
+        <span class="rthumb" style="width:34px;height:41px;background:var(--paper2);border:1px solid var(--line);border-radius:6px;display:flex;align-items:center;justify-content:center;overflow:hidden;flex:none">${it.img?`<img src="${it.img}" style="width:100%;height:100%;object-fit:cover">`:sketchOf(it)}</span>
+        <span class="mt2">${esc(it.name)}<small>${it.sub} · ${it.color}</small></span>
+        <span class="ar mut">${ic('fwd',15)}</span>
+      </div>`).join('')}</div>`;
+  }else{
+    const it=byId(LAB.sel);
+    if(!it){LAB.sel=null;renderLab();return}
+    const others=DB.items.filter(x=>x.id!==it.id&&x.cat!==it.cat);
+    const great=others.filter(x=>harmony(it.color,x.color)>=2);
+    const fine=others.filter(x=>harmony(it.color,x.color)===1);
+    const clash=others.filter(x=>!harmony(it.color,x.color));
+    const row=(x,k,note)=>`<div class="matchrow" onclick="itemDetail('${x.id}')">
+      <span class="rthumb" style="width:34px;height:41px;background:var(--paper2);border:1px solid var(--line);border-radius:6px;display:flex;align-items:center;justify-content:center;overflow:hidden;flex:none">${x.img?`<img src="${x.img}" style="width:100%;height:100%;object-fit:cover">`:sketchOf(x)}</span>
+      <span class="mt2">${esc(x.name)}<small>${x.sub} · ${note}</small></span>
+      <span class="mk ${k}">${ic(k==='y'?'check':k==='n'?'x':'sparkle',13)}</span></div>`;
+    html+=`<div class="card" style="display:flex;gap:14px;align-items:center;padding:14px">
+      <div style="width:80px;height:96px;background:var(--paper2);border:1px solid var(--line);border-radius:10px;display:flex;align-items:center;justify-content:center;overflow:hidden;flex:none">${it.img?`<img src="${it.img}" style="width:100%;height:100%;object-fit:cover">`:sketchOf(it)}</div>
+      <div><h3 class="serif" style="font-size:20px">${esc(it.name)}</h3>
+      <div style="margin-top:6px;font-size:12.5px" class="mut"><span style="display:inline-block;width:13px;height:13px;border-radius:50%;border:1px solid rgba(0,0,0,.2);vertical-align:-2px;margin-right:5px;background:${COLORS[it.color]}"></span>${it.color}</div></div>
+    </div>
+    <div class="lbl">Goes beautifully (${great.length})</div>
+    <div class="card">${great.map(x=>row(x,'y',matchNote(it.color,x.color))).join('')||'<p class="mut" style="padding:13px;font-size:12.5px">Nothing yet in this tier.</p>'}</div>
+    ${fine.length?`<div class="lbl">Works fine (${fine.length})</div><div class="card">${fine.map(x=>row(x,'m',matchNote(it.color,x.color))).join('')}</div>`:''}
+    ${clash.length?`<div class="lbl">Watch out (${clash.length})</div><div class="card">${clash.map(x=>row(x,'n',matchNote(it.color,x.color))).join('')}</div>`:''}
+    <div class="mrow">
+      <button class="btn primary" onclick="go('gen',{sel:'${it.id}'})">${ic('sparkle',15)} Build an outfit around it</button>
+      <button class="btn ghost" onclick="LAB.sel=null;renderLab()">${ic('back',14)} Pick another</button>
+    </div>`;
+  }
+  el.innerHTML=html;
+}
+
+/* ---------- 22) الإعدادات ---------- */
+function renderSet(){
+  const el=$('#scr-set');
+  el.innerHTML=`${hdr('Settings')}
+  <div class="card">
+    <div class="setrow"><div class="st3">Don't repeat outfits for</div>
+      <div class="ss3">If the generator suggests a look you wore recently, it will warn you and try again.</div>
+      <div class="chiprow">${[[0,'Off'],[3,'3 days'],[7,'7 days'],[14,'14 days']].map(([v,l])=>`<button class="chip ${DB.settings.noRepeat===v?'on':''}" onclick="DB.settings.noRepeat=${v};save();renderSet()">${l}</button>`).join('')}</div>
+    </div>
+    <div class="setrow"><div class="st3">Laundry shortcuts</div>
+      <div class="ss3">Flip the status of all pieces at once.</div>
+      <div class="chiprow">
+        <button class="chip" onclick="askConfirm('Everything is clean?','All pieces will be marked as clean and available.',()=>{DB.items.forEach(i=>i.status='ok');save();toast('All clean ✓')})">${ic('check',14)} All clean</button>
+        <button class="chip" onclick="askConfirm('Send it all to the laundry?','Every piece will be marked as in the laundry — the generator will stop suggesting them.',()=>{DB.items.forEach(i=>i.status='laundry');save();toast('Off to the wash 🧺')})">${ic('refresh',14)} All in wash</button>
+      </div>
+    </div>
+    <div class="setrow"><div class="st3">My data</div>
+      <div class="ss3">${DB.items.length} pieces · ${DB.outfits.length} outfit records · stored privately on this device.</div>
+      <div class="chiprow">
+        <button class="chip" onclick="askConfirm('Reload the demo closet?','Your current pieces and history will be replaced with the sample wardrobe.',()=>{seedDb();toast('Demo closet reloaded ✨');go('home')})">Reload demo closet</button>
+        <button class="chip acc" onclick="askConfirm('Erase everything?','All pieces, outfits and history will be deleted from this device. This cannot be undone.',()=>{localStorage.removeItem('closet.db');DB.items=[];DB.outfits=[];DB.settings={noRepeat:7,weather:'warm',dailySalt:0};toast('Erased');go('home')})">Erase all data</button>
+      </div>
+    </div>
+  </div>
+  <div class="lbl">Add to your home screen</div>
+  <div class="card" style="padding:15px;font-size:13.5px;line-height:1.6">
+    <b>iPhone:</b> Safari → Share <b>⬆</b> → “Add to Home Screen”.<br>
+    <b>Android:</b> Chrome → menu <b>⋮</b> → “Install app”.<br>
+    <span class="mut">It will open full-screen with its own “My Closet” icon — like any real app.</span>
+  </div>
+  <div class="card" style="padding:15px;margin-top:14px;display:flex;align-items:center;gap:12px">
+    ${ic('hanger',30)}
+    <div><b>My Closet — What's in My Closet?</b><br><span class="mut" style="font-size:12px">v1.0 · everything stays on your phone, always.</span></div>
+  </div>`;
+}
+
+/* ---------- 23) شريط التنقل ---------- */
+ $('#bnav').innerHTML=[
+  ['home','home','Home'],['closet','hanger','Closet'],['gen','sparkle','Create'],
+  ['cal','cal','Calendar'],['stats','chart','Stats']
+].map(([k,i,l])=>`<button data-go="${k}" onclick="go('${k}')">${ic(i,21)}<span>${l}</span></button>`).join('');
+
+/* ---------- 24) PWA: اسم ولوجو وأيقونة للتثبيت ---------- */
+(function setupInstall(){
+  const logoSvg=`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+    <rect width="512" height="512" rx="108" fill="#F2EDE3"/>
+    <g fill="none" stroke="#1C1A15" stroke-width="24" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M256 150v-34a34 34 0 1 1 34-34"/>
+      <path d="M256 150 96 246a176 176 0 0 0 320 0L256 150z"/>
+    </g>
+    <circle cx="256" cy="228" r="16" fill="#C13B25"/>
+  </svg>`;
+  const iconUri='data:image/svg+xml,'+encodeURIComponent(logoSvg);
+  // Manifest (Chrome / Android)
+  const manifest={name:"My Closet — What's in My Closet?",short_name:'My Closet',start_url:'.',display:'standalone',
+    background_color:'#F2EDE3',theme_color:'#F2EDE3',description:'Your real wardrobe, organised. Daily outfit ideas from your own clothes.',
+    icons:[{src:iconUri,sizes:'192x192',type:'image/svg+xml',purpose:'any'},{src:iconUri,sizes:'512x512',type:'image/svg+xml',purpose:'any maskable'}]};
+  $('#manifest').setAttribute('href','data:application/manifest+json,'+encodeURIComponent(JSON.stringify(manifest)));
+  // أيقونة PNG للـ iPhone عبر canvas
+  try{
+    const c=document.createElement('canvas');c.width=c.height=180;const g=c.getContext('2d');
+    g.fillStyle='#F2EDE3';g.fillRect(0,0,180,180);
+    g.strokeStyle='#1C1A15';g.lineWidth=9;g.lineCap='round';g.lineJoin='round';g.fillStyle='#C13B25';
+    const sc=180/512;
+    g.beginPath();g.moveTo(256*sc,150*sc);g.lineTo(256*sc,116*sc);g.arc(256*sc,82*sc,34*sc,Math.PI*.5,Math.PI*2);g.stroke();
+    g.beginPath();g.moveTo(256*sc,150*sc);g.lineTo(96*sc,246*sc);
+    g.arc(256*sc,246*sc+176*sc*Math.sin(Math.acos((256-96)/176))-176*sc,176*sc,0,0,false);
+    g.stroke();
+    // أرسم القوس السفلي بشكل مباشر وأوضح
+    g.beginPath();g.moveTo(96*sc,246*sc);g.quadraticCurveTo(180,348,256*sc,422/512*180+42);g.quadraticCurveTo(332*sc,340*sc*0.9,416*sc,246*sc);g.stroke();
+    g.beginPath();g.arc(256*sc,228*sc,16*sc,0,7);g.fill();
+    $('#appleIcon').setAttribute('href',c.toDataURL('image/png'));
+    // أيقونة التبويب في المتصفح
+    const l=document.createElement('link');l.rel='icon';l.href=iconUri;document.head.append(l);
+  }catch(e){}
+})();
+
+/* ---------- 25) تشغيل ---------- */
+refreshToday();
+const hadDb=loadDb();
+if(!hadDb){seedDb();}
+go('home');
+setTimeout(()=>{$('#splash').classList.add('bye');setTimeout(()=>$('#splash').remove(),500)},1500);
+if(!hadDb)setTimeout(()=>toast('Demo closet loaded — add your own pieces any time ✨'),2100);
+</script>
+</body>
+</html>
