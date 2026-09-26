@@ -307,6 +307,25 @@ body.lock{overflow:hidden}
 </div>
 
 <script>
+/* ===== حارس الأمان =====
+   لو السكريبت الرئيسي وقع لأي سبب، شيل شاشة الافتتاح وعرض رسالة —
+   بدل ما التطبيق يفضل مجمد على اللوجو للأبد. */
+setTimeout(function(){
+  if(!window.__bootOk){
+    var s=document.getElementById('splash');
+    if(s){s.classList.add('bye');setTimeout(function(){s.remove()},500)}
+    var t=document.getElementById('toasts');
+    if(t){
+      var d=document.createElement('div');
+      d.className='toast on';
+      d.textContent='Sorry — the app hit an error while starting. Please re-copy the full code.';
+      t.appendChild(d);
+    }
+  }
+},5000);
+</script>
+
+<script>
 /* =====================================================================
    MY CLOSET — What's in My Closet?
    كل البيانات محلية في localStorage — مفيش أي سيرفر ولا API
@@ -556,9 +575,12 @@ function generateOutfit(o={}){
     return s;
   };
   const anchor=o.anchor&&avail.includes(o.anchor)?o.anchor:null;
+  // لو مفيش أسفل متاحة نظيفة → إجباري يختار فستان
+  const forceDress=!avail.some(i=>i.cat==='bottoms');
   let last=null,lastWarn=null;
   for(let att=0;att<40;att++){
-    const tPool=poolOf('tops');
+    let tPool=poolOf('tops');
+    if(forceDress){const dr=tPool.filter(i=>i.sub==='Dress');if(dr.length)tPool=dr;}
     const top=anchor&&anchor.cat==='tops'?anchor:wPick(tPool,styleScore,r);
     let bPool=poolOf('bottoms');
     const bg=bPool.filter(x=>harmony(top.color,x.color)>0);if(bg.length)bPool=bg;
@@ -579,7 +601,7 @@ function generateOutfit(o={}){
   return Object.assign(last,{warn:lastWarn});
 }
 function wearOutfit(slots,date,occasion,weather,silent){
-  DB.outfits=DB.outfits.filter(x=>!((x.kind==='worn'||x.kind==='planned')&&x.date===date&&x.kind==='worn')&&!((x.kind==='planned')&&x.date===date));
+  DB.outfits=DB.outfits.filter(x=>!(x.date===date&&(x.kind==='worn'||x.kind==='planned')));
   DB.outfits.push({id:uid(),slots:Object.assign({},slots),date,occasion,weather,kind:'worn'});
   Object.values(slots).forEach(id=>{const it=byId(id);if(it){it.timesWorn=(it.timesWorn||0)+1;it.lastWorn=date}});
   save();
@@ -738,7 +760,7 @@ function renderCloset(){
   el.innerHTML=`${hdr('My Closet',`<button class="bk" style="border-color:var(--acc);color:var(--acc)" onclick="go('add')">${ic('plus',18)}</button>`)}
   <div class="srch">${ic('sparkle',16)}<input placeholder="Search your pieces…" value="${esc(CST.q)}" oninput="CST.q=this.value;renderClosetGrid()"></div>
   <div class="chiprow">${[['all','All']].concat(Object.entries(CATS).map(([k,v])=>[k,v.label])).map(([k,l])=>`<button class="chip ${CST.cat===k?'on':''}" onclick="CST.cat='${k}';CST.sub=null;renderCloset()">${l}</button>`).join('')}</div>
-  ${subs?`<div class="chiprow subrow">${['',...subs].map(s=>`<button class="chip ${CST.sub===s?'on':''}" onclick="CST.sub=${s?`'${s}'`:'null'};renderCloset()">${s||'All '+CATS[CST.cat].label}</button>`).join('')}</div>`:''}
+  ${subs?`<div class="chiprow subrow">${['',...subs].map(s=>`<button class="chip ${(CST.sub||'')===s?'on':''}" onclick="CST.sub=${s?`'${s}'`:'null'};renderCloset()">${s||'All '+CATS[CST.cat].label}</button>`).join('')}</div>`:''}
   <div class="chiprow subrow">${[['all','Any status'],['ok','Clean'],['laundry','In laundry'],['drying','Drying'],['out','Set aside'],['fav','Favorites'],['never','Never worn']].map(([k,l])=>`<button class="chip ${CST.filter===k?'on':''}" onclick="CST.filter='${k}';renderCloset()">${l}</button>`).join('')}</div>
   <div class="grid2" id="cgrid" style="margin-top:15px"></div>
   <div style="margin-top:18px;text-align:center"><button class="btn primary block" onclick="go('add')">${ic('camera',16)} Add a piece</button></div>`;
@@ -815,7 +837,7 @@ function renderAdd(){
   <div class="cam">
     <div class="cv" id="camv">${A.img?`<img src="${A.img}" alt="">`:sketchOf({sub:A.sub,color:A.color})}</div>
     <div class="chiprow" style="justify-content:center">
-      <button class="btn primary" onclick="$('#fpick').click()">${ic('camera',16)} ${A.img?'Change photo':'Take / choose photo'}</button>
+      <button class="btn primary" onclick="document.getElementById('fpick').click()">${ic('camera',16)} ${A.img?'Change photo':'Take / choose photo'}</button>
       ${A.img?`<button class="btn ghost" onclick="A.img=null;renderAdd()">${ic('x',14)} Remove</button>`:''}
     </div>
     ${A.detected?`<div class="detected">${ic('check',15)} We detected the colour: <span class="sw" style="background:${COLORS[A.detected]||'#fff'}"></span><b>${A.detected}</b> — tap a swatch to change it.</div>`:`<p class="mut" style="font-size:12px;margin-top:11px">No photo? We’ll sketch the piece for you instead.</p>`}
@@ -863,7 +885,7 @@ function nearestColor(r,g,b){
   for(const[n,h]of Object.entries(COLORS)){const[cr,cg,cb]=hex2rgb(h);const d=(cr-r)**2+(cg-g)**2+(cb-b)**2;if(d<bd){bd=d;best=n}}
   return best;
 }
- $('#fpick').addEventListener('change',e=>{
+document.getElementById('fpick').addEventListener('change',e=>{
   const f=e.target.files[0];if(!f)return;
   const rd=new FileReader();
   rd.onload=()=>{
@@ -920,7 +942,7 @@ function wizardView(){
 function setG(k,v){G[k]=v;if(G.step<2)G.step++;renderGen()}
 function resultView(){
   const r=G.result;
-  if(r.error)return `<div class="card errbox"><div class="empty"><div class="et">Everything's in the laundry! 🧺</div><p>None of your ${r.error==='laundry'?'pieces':'seasonal pieces'} are clean and available right now.</p>
+  if(r.error)return `<div class="card errbox"><div class="empty"><div class="et">Everything's in the laundry! 🧺</div><p>None of your pieces are clean and available right now.</p>
     <button class="btn primary" onclick="markLaundryDone()">${ic('check',16)} Laundry is done — set all clean</button></div></div>`;
   return `<div class="reschips">${occWxChips(r.occasion,r.weather,r.style)}
     <button class="chip" onclick="G.step=0;G.result=null;renderGen()">${ic('pencil',13)} Change</button></div>
@@ -951,12 +973,17 @@ function openSave(){
 function pickCol(c){
   window._saveCol=c;
   $$('#mroot .chip').forEach(x=>x.classList.remove('on'));
-  $('#col-'+c.replace(/\s/g,'')).classList.add('on');
+  const btn=document.getElementById('col-'+c.replace(/\s/g,''));
+  if(btn)btn.classList.add('on');
 }
 function doSave(){
   const r=G.result;
   DB.outfits.push({id:uid(),slots:Object.assign({},r.slots),date:null,occasion:r.occasion,weather:r.weather,kind:'saved',collection:window._saveCol||'Unsorted'});
   save();closeModal();toast('Saved to favorites ❤');
+}
+function markLaundryDone(){
+  DB.items.forEach(i=>i.status='ok');
+  save();renderGen();toast('All clean ✓');
 }
 
 /* ---------- 17) التقويم والتخطيط ---------- */
@@ -980,7 +1007,7 @@ function renderCal(){
       const ks=['top','bottom','shoes'].map(k=>byId(show.slots[k])).filter(Boolean);
       dots=`<div class="dots">${ks.map(i=>`<i style="background:${COLORS[i.color]}"></i>`).join('')}</div>`;
     }
-    cells+=`<div class="day ${ds===TODAY?'today':''} ${ds>TODAY&&plan?'plan':''} ${show?'':'off2'}" onclick="openDay('${ds}')">
+    cells+=`<div class="day ${ds===TODAY?'today':''} ${ds>TODAY&&plan?'plan':''}" onclick="openDay('${ds}')">
       <span class="dn">${d}</span>${dots}${!show&&ds>TODAY?'<span class="pin"></span>':''}</div>`;
   }
   el.innerHTML=`${hdr('Outfit calendar')}
@@ -1064,7 +1091,7 @@ function renderStats(){
   const least=DB.items.slice().sort((a,b)=>(a.timesWorn||0)-(b.timesWorn||0)).slice(0,4);
   const cpw=DB.items.filter(i=>i.price&&i.timesWorn>0).sort((a,b)=>a.price/a.timesWorn-b.price/b.timesWorn).slice(0,6);
   const pal=palette().slice(0,5);
-  const ringP=eff*2.45;
+  const ringP=eff*2.83;
   el.innerHTML=`${hdr('Wardrobe statistics')}
   <div class="card effcard">
     <div class="ring">
@@ -1100,18 +1127,21 @@ function renderStats(){
     <span class="rn accT">${Math.round(it.price/it.timesWorn)}<small class="mut" style="font-family:Karla;font-size:10px"> EGP/wear</small></span></div>`).join('')}</div>`:''}`;
 }
 
-/* ---------- 19) المفضلة ---------- */
+/* ---------- 19) المفضلة (اتصلحت هنا) ---------- */
 let FAV={col:null};
+function favCol(c){FAV.col=c||null;renderFav()}
 function renderFav(){
   const el=$('#scr-fav');
   const saved=DB.outfits.filter(o=>o.kind==='saved');
-  if(!saved.length){el.innerHTML=hdr('Favorite looks')+emptyBox('No saved looks yet','When you love a generated outfit, hit “Save look” and it lives here.','Create an outfit',"go('gen')");return}
+  if(!saved.length){el.innerHTML=hdr('Favorite looks')+emptyBox('No saved looks yet','When you love a generated outfit, hit Save look and it lives here.','Create an outfit',"go('gen')");return}
   const cols=[...new Set(saved.map(o=>o.collection||'Unsorted'))];
   const list=FAV.col?saved.filter(o=>(o.collection||'Unsorted')===FAV.col):saved;
+  const chips=[`<button class="chip ${!FAV.col?'on':''}" onclick="favCol(null)">All</button>`]
+    .concat(cols.map(c=>`<button class="chip ${FAV.col===c?'on':''}" onclick="favCol('${c}')">${esc(c)}</button>`)).join('');
   el.innerHTML=`${hdr('Favorite looks')}
-  <div class="chiprow">${[['null','All']].concat(cols.map(c=>[c,c])).map(([k,l])=>`<button class="chip ${String(FAV.col)===k?'on':''}" onclick="FAV.col=${k==='null'?'null':`'${c=${l}','${l}'`};renderFav()">${l}</button>`).join('')}</div>
+  <div class="chiprow">${chips}</div>
   ${list.map(o=>`<div class="card favrow">
-    <div class="fmeta"><span class="chip acc" style="pointer-events:none;font-size:11px">${o.collection||'Unsorted'}</span>
+    <div class="fmeta"><span class="chip acc" style="pointer-events:none;font-size:11px">${esc(o.collection||'Unsorted')}</span>
       <span>${ic(OCC[o.occasion].icon,14)} ${OCC[o.occasion].label}</span>
       <span>${ic(WEATHER[o.weather].icon,14)} ${WEATHER[o.weather].label}</span></div>
     ${lookBoard(o.slots,true)}
@@ -1131,8 +1161,6 @@ function dropFav(id){DB.outfits=DB.outfits.filter(x=>x.id!==id);save();renderFav
 let TR={days:5,weather:'warm',pack:null,looks:null};
 function renderTravel(){
   const el=$('#scr-travel');
-  const wS=WEATHER[TR.weather].seasons;
-  const fits=it=>it.seasons.some(s=>wS.includes(s));
   let html=`${hdr('Travel mode')}
   <div class="stepper">
     <button onclick="TR.days=Math.max(1,TR.days-1);TR.pack=TR.looks=null;renderTravel()">−</button>
@@ -1176,12 +1204,13 @@ function buildPack(){
 }
 function buildTripLooks(){
   const P=TR.pack;TR.looks=[];
+  const bagAcc=P.accs.find(a=>a.sub==='Bag')||null;
+  const otherAcc=P.accs.find(a=>a.sub!=='Bag')||null;
   for(let d=0;d<TR.days;d++){
     const top=P.tops[d%P.tops.length];
-    const bottom=top.sub==='Dress'||!P.bottoms.length?null:P.bottoms[Math.floor(d/2)%P.bottoms.length];
+    const bottom=(top.sub==='Dress'||!P.bottoms.length)?null:P.bottoms[Math.floor(d/2)%P.bottoms.length];
     const shoes=P.shoes[d%P.shoes.length];
-    const slots={top:top.id,bottom:bottom?bottom.id:null,shoes:shoes.id,bag:P.accs.find(a=>a.sub==='Bag')?.id||null,acc:P.accs.find(a=>a.sub!=='Bag')?.id||null};
-    TR.looks.push(slots);
+    TR.looks.push({top:top.id,bottom:bottom?bottom.id:null,shoes:shoes.id,bag:bagAcc?bagAcc.id:null,acc:otherAcc?otherAcc.id:null});
   }
   renderTravel();
 }
@@ -1189,7 +1218,7 @@ function saveTrip(){
   const start=new Date();start.setDate(start.getDate()+1);
   TR.looks.forEach((slots,i)=>{
     const d=new Date(start);d.setDate(start.getDate()+i);
-    DB.outfits.push({id:uid(),slots,date:fmtDate(d),occasion:'travel',weather:TR.weather,kind:'planned'});
+    DB.outfits.push({id:uid(),slots:Object.assign({},slots),date:fmtDate(d),occasion:'travel',weather:TR.weather,kind:'planned'});
   });
   save();toast(TR.days+' outfits planned ✓ See the calendar');go('cal');
 }
@@ -1205,7 +1234,7 @@ function renderLab(){
     <div class="chiprow" style="margin-bottom:14px">${[['all','All']].concat(Object.entries(CATS).map(([k,v])=>[k,v.label])).map(([k,l])=>`<button class="chip ${LAB.cat===k?'on':''}" onclick="LAB.cat='${k}';renderLab()">${l}</button>`).join('')}</div>
     <div class="card">${DB.items.filter(i=>LAB.cat==='all'||i.cat===LAB.cat).map(it=>`
       <div class="matchrow" style="cursor:pointer" onclick="LAB.sel='${it.id}';renderLab()">
-        <span class="rthumb" style="width:34px;height:41px;background:var(--paper2);border:1px solid var(--line);border-radius:6px;display:flex;align-items:center;justify-content:center;overflow:hidden;flex:none">${it.img?`<img src="${it.img}" style="width:100%;height:100%;object-fit:cover">`:sketchOf(it)}</span>
+        <span style="width:34px;height:41px;background:var(--paper2);border:1px solid var(--line);border-radius:6px;display:flex;align-items:center;justify-content:center;overflow:hidden;flex:none">${it.img?`<img src="${it.img}" style="width:100%;height:100%;object-fit:cover">`:sketchOf(it)}</span>
         <span class="mt2">${esc(it.name)}<small>${it.sub} · ${it.color}</small></span>
         <span class="ar mut">${ic('fwd',15)}</span>
       </div>`).join('')}</div>`;
@@ -1217,7 +1246,7 @@ function renderLab(){
     const fine=others.filter(x=>harmony(it.color,x.color)===1);
     const clash=others.filter(x=>!harmony(it.color,x.color));
     const row=(x,k,note)=>`<div class="matchrow" onclick="itemDetail('${x.id}')">
-      <span class="rthumb" style="width:34px;height:41px;background:var(--paper2);border:1px solid var(--line);border-radius:6px;display:flex;align-items:center;justify-content:center;overflow:hidden;flex:none">${x.img?`<img src="${x.img}" style="width:100%;height:100%;object-fit:cover">`:sketchOf(x)}</span>
+      <span style="width:34px;height:41px;background:var(--paper2);border:1px solid var(--line);border-radius:6px;display:flex;align-items:center;justify-content:center;overflow:hidden;flex:none">${x.img?`<img src="${x.img}" style="width:100%;height:100%;object-fit:cover">`:sketchOf(x)}</span>
       <span class="mt2">${esc(x.name)}<small>${x.sub} · ${note}</small></span>
       <span class="mk ${k}">${ic(k==='y'?'check':k==='n'?'x':'sparkle',13)}</span></div>`;
     html+=`<div class="card" style="display:flex;gap:14px;align-items:center;padding:14px">
@@ -1263,18 +1292,18 @@ function renderSet(){
   </div>
   <div class="lbl">Add to your home screen</div>
   <div class="card" style="padding:15px;font-size:13.5px;line-height:1.6">
-    <b>iPhone:</b> Safari → Share <b>⬆</b> → “Add to Home Screen”.<br>
-    <b>Android:</b> Chrome → menu <b>⋮</b> → “Install app”.<br>
-    <span class="mut">It will open full-screen with its own “My Closet” icon — like any real app.</span>
+    <b>iPhone:</b> Safari → Share <b>⬆</b> → Add to Home Screen.<br>
+    <b>Android:</b> Chrome → menu <b>⋮</b> → Install app.<br>
+    <span class="mut" style="font-size:12px">It will open full-screen with its own My Closet icon — like any real app.</span>
   </div>
   <div class="card" style="padding:15px;margin-top:14px;display:flex;align-items:center;gap:12px">
     ${ic('hanger',30)}
-    <div><b>My Closet — What's in My Closet?</b><br><span class="mut" style="font-size:12px">v1.0 · everything stays on your phone, always.</span></div>
+    <div><b>My Closet — What's in My Closet?</b><br><span class="mut" style="font-size:12px">v1.0.1 · everything stays on your phone, always.</span></div>
   </div>`;
 }
 
 /* ---------- 23) شريط التنقل ---------- */
- $('#bnav').innerHTML=[
+document.getElementById('bnav').innerHTML=[
   ['home','home','Home'],['closet','hanger','Closet'],['gen','sparkle','Create'],
   ['cal','cal','Calendar'],['stats','chart','Stats']
 ].map(([k,i,l])=>`<button data-go="${k}" onclick="go('${k}')">${ic(i,21)}<span>${l}</span></button>`).join('');
@@ -1285,32 +1314,26 @@ function renderSet(){
     <rect width="512" height="512" rx="108" fill="#F2EDE3"/>
     <g fill="none" stroke="#1C1A15" stroke-width="24" stroke-linecap="round" stroke-linejoin="round">
       <path d="M256 150v-34a34 34 0 1 1 34-34"/>
-      <path d="M256 150 96 246a176 176 0 0 0 320 0L256 150z"/>
+      <path d="M256 150 96 246q160 114 320 0L256 150z"/>
     </g>
-    <circle cx="256" cy="228" r="16" fill="#C13B25"/>
+    <circle cx="256" cy="260" r="17" fill="#C13B25"/>
   </svg>`;
   const iconUri='data:image/svg+xml,'+encodeURIComponent(logoSvg);
-  // Manifest (Chrome / Android)
   const manifest={name:"My Closet — What's in My Closet?",short_name:'My Closet',start_url:'.',display:'standalone',
     background_color:'#F2EDE3',theme_color:'#F2EDE3',description:'Your real wardrobe, organised. Daily outfit ideas from your own clothes.',
     icons:[{src:iconUri,sizes:'192x192',type:'image/svg+xml',purpose:'any'},{src:iconUri,sizes:'512x512',type:'image/svg+xml',purpose:'any maskable'}]};
-  $('#manifest').setAttribute('href','data:application/manifest+json,'+encodeURIComponent(JSON.stringify(manifest)));
-  // أيقونة PNG للـ iPhone عبر canvas
+  document.getElementById('manifest').setAttribute('href','data:application/manifest+json,'+encodeURIComponent(JSON.stringify(manifest)));
   try{
+    // أيقونة PNG للأيفون بترسم اللوجو يدويًا على canvas
     const c=document.createElement('canvas');c.width=c.height=180;const g=c.getContext('2d');
+    const s=180/512;
     g.fillStyle='#F2EDE3';g.fillRect(0,0,180,180);
-    g.strokeStyle='#1C1A15';g.lineWidth=9;g.lineCap='round';g.lineJoin='round';g.fillStyle='#C13B25';
-    const sc=180/512;
-    g.beginPath();g.moveTo(256*sc,150*sc);g.lineTo(256*sc,116*sc);g.arc(256*sc,82*sc,34*sc,Math.PI*.5,Math.PI*2);g.stroke();
-    g.beginPath();g.moveTo(256*sc,150*sc);g.lineTo(96*sc,246*sc);
-    g.arc(256*sc,246*sc+176*sc*Math.sin(Math.acos((256-96)/176))-176*sc,176*sc,0,0,false);
-    g.stroke();
-    // أرسم القوس السفلي بشكل مباشر وأوضح
-    g.beginPath();g.moveTo(96*sc,246*sc);g.quadraticCurveTo(180,348,256*sc,422/512*180+42);g.quadraticCurveTo(332*sc,340*sc*0.9,416*sc,246*sc);g.stroke();
-    g.beginPath();g.arc(256*sc,228*sc,16*sc,0,7);g.fill();
-    $('#appleIcon').setAttribute('href',c.toDataURL('image/png'));
-    // أيقونة التبويب في المتصفح
-    const l=document.createElement('link');l.rel='icon';l.href=iconUri;document.head.append(l);
+    g.strokeStyle='#1C1A15';g.lineWidth=9;g.lineCap='round';g.lineJoin='round';
+    g.beginPath();g.moveTo(256*s,150*s);g.lineTo(256*s,118*s);g.arc(256*s,84*s,34*s,Math.PI/2,Math.PI*2,false);g.stroke();
+    g.beginPath();g.moveTo(256*s,150*s);g.lineTo(96*s,246*s);g.quadraticCurveTo(256*s,362*s,416*s,246*s);g.closePath();g.stroke();
+    g.fillStyle='#C13B25';g.beginPath();g.arc(256*s,258*s,17*s,0,Math.PI*2);g.fill();
+    document.getElementById('appleIcon').setAttribute('href',c.toDataURL('image/png'));
+    const l=document.createElement('link');l.rel='icon';l.href=iconUri;document.head.appendChild(l);
   }catch(e){}
 })();
 
@@ -1319,8 +1342,9 @@ refreshToday();
 const hadDb=loadDb();
 if(!hadDb){seedDb();}
 go('home');
-setTimeout(()=>{$('#splash').classList.add('bye');setTimeout(()=>$('#splash').remove(),500)},1500);
-if(!hadDb)setTimeout(()=>toast('Demo closet loaded — add your own pieces any time ✨'),2100);
+window.__bootOk=true;
+setTimeout(function(){var sp=document.getElementById('splash');if(sp){sp.classList.add('bye');setTimeout(function(){sp.remove()},500)}},1500);
+if(!hadDb)setTimeout(function(){toast('Demo closet loaded — add your own pieces any time ✨')},2100);
 </script>
 </body>
 </html>
